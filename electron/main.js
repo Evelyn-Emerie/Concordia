@@ -21,9 +21,11 @@ localserver.listen(PORT, () => {
 // Create the Electron window
 function createWindow() {
     const win = new BrowserWindow({
-        width: 800,
+        minWidth: 500,
+        width: 1000,
+        minHeight: 300,
         height: 600,
-        title: 'ChatThingie'
+        title: 'ChatThingie',
     });
 
     // win.setAutoHideMenuBar(true);
