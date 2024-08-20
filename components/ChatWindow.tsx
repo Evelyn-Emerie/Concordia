@@ -1,4 +1,4 @@
-import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, Linking, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import AutoExpandingTextInput from "./AutoTextInput";
 import { getMessages, sendMessage } from "../handlers/chat";
@@ -16,13 +16,13 @@ export type Message = {
 type User = {
 	id: string;
 	username: string;
+	profilePicture?: string;
 };
 
 interface ChatWindowProps {
 	newMessage?: Message;
 	activeChannel: Function;
 	title: string;
-	userID: string;
 }
 
 export default function ChatWindow(props: ChatWindowProps) {
@@ -147,8 +147,10 @@ const MessageCard = (props: MessageCardProps) => {
 								borderRadius: 20,
 								marginRight: 5,
 								backgroundColor: "white",
-							}}
-						/>
+								overflow: "hidden",
+							}}>
+							{props.message.user.profilePicture ? <Image source={{ uri: `https://api.staryhub.net/users/pfp/${props.message.user.profilePicture}`, width: 20, height: 20 }} /> : null}
+						</View>
 						<Text style={{ color: "#fff", fontWeight: "500" }}>{props.message.user.username}</Text>
 						<Text style={{ color: "#ddd", fontSize: 10 }}> {timestamp}</Text>
 					</View>
