@@ -1,4 +1,10 @@
-import { Ionicons } from "@expo/vector-icons";
+import {
+  EvilIcons,
+  FontAwesome6,
+  Ionicons,
+  MaterialIcons,
+} from "@expo/vector-icons";
+import { Link, useRouter } from "expo-router";
 import { useState, useRef, useEffect } from "react";
 import { View, Animated, Easing, Pressable, Text, Image } from "react-native";
 
@@ -25,6 +31,8 @@ export default function ServerList() {
     setSelectedId(id);
   };
 
+  const router = useRouter();
+
   return (
     <View style={{ marginHorizontal: 5 }}>
       {serverList.map((server) => {
@@ -40,6 +48,22 @@ export default function ServerList() {
         );
       })}
       <AddServer />
+      <View style={{ flex: 1 }} />
+      <Pressable
+        onPress={() => {
+          router.push("/settings");
+        }}
+      >
+        <View
+          style={{
+            width: 40,
+            height: 40,
+            marginBottom: 10,
+          }}
+        >
+          <MaterialIcons name="settings" size={40} color={"#ddd"} />
+        </View>
+      </Pressable>
     </View>
   );
 }

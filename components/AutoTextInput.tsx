@@ -10,6 +10,7 @@ interface AutoTextInputProps {
 
 export default function AutoExpandingTextInput(props: AutoTextInputProps) {
   const [inputHeight, setInputHeight] = useState(16);
+  const [isSendable, setIsSendable] = useState(false);
 
   const keyValue = "Enter";
 
@@ -21,6 +22,7 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
         paddingVertical: 5,
         flexDirection: "row",
         alignItems: "center",
+        borderRadius: 10,
       }}
     >
       <TextInput
@@ -43,6 +45,7 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
             if (props.text.trim().length > 0) {
               // If there is more inside the string than whitespace characters
               props.onSubmit(); // Send the message
+              setIsSendable(false);
             }
           }
         }}
@@ -51,6 +54,7 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
         placeholderTextColor={"#626262"}
         underlineColorAndroid={"transparent"}
         onChangeText={(text) => {
+          setIsSendable(text.length > 0);
           const textLines = text.split("\n").length; // Calculate amount of lines
           setInputHeight(textLines * 16);
           props.setText(text); //Updated the text to reflect changes
@@ -62,11 +66,12 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
           if (props.text.length < 1) return;
           props.onSubmit(); // Send the message
           setInputHeight(16);
+          setIsSendable(false);
         }}
       >
         <Ionicons
-          name="arrow-forward-circle-outline"
-          color={"white"}
+          name="send"
+          color={isSendable ? "#c14dcb" : "#262626"}
           size={20}
         />
       </Pressable>
