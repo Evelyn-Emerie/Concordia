@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "../constants/Colors";
 import { useState } from "react";
 import { View, TextInput, Pressable, Platform } from "react-native";
 
@@ -71,7 +72,7 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
       >
         <Ionicons
           name="send"
-          color={isSendable ? "#c14dcb" : "#262626"}
+          color={isSendable ? Colors.dark.secondary : "#262626"}
           size={20}
         />
       </Pressable>

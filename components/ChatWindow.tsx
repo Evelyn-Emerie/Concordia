@@ -1,8 +1,15 @@
-import { ActivityIndicator, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Linking,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import AutoExpandingTextInput from "./AutoTextInput";
 import { getMessages, sendMessage } from "../handlers/chat";
-import { FlatList, ScrollView } from "react-native-gesture-handler";
+import { FlatList } from "react-native-gesture-handler";
+import { Colors } from "../constants/Colors";
 
 export type Message = {
   [x: string]: {};
@@ -173,10 +180,49 @@ const MessageCard = (props: MessageCardProps) => {
           <Text style={{ color: "#ddd", fontSize: 10 }}> {timestamp}</Text>
         </View>
       ) : null}
-
       <Text style={{ color: "white", marginLeft: 10 }} selectable>
-        {props.message.text}
+        {processMessage(props.message.text)}
       </Text>
     </View>
   );
+};
+
+const processMessage = (text: string) => {
+  const URL_REGEX = /(http|https|HTTP|HTTPS):\/\/[\w_-]\S*/g;
+
+  const URLs = text.match(URL_REGEX);
+  const parts = text.split(" ");
+  if (!URLs) return <Text>{text}</Text>;
+  console.log(URLs);
+
+  let fancyText: React.JSX.Element[] = [];
+
+  // This is a mess...
+  parts.forEach((part, index) => {
+    if (URLs?.includes(part)) {
+      part += " ";
+      fancyText.push(
+        <Pressable
+          key={`link-${index}`}
+          onPress={() => {
+            Linking.openURL(part.toString());
+          }}
+        >
+          <Text
+            style={{
+              color: Colors.dark.secondary,
+              textDecorationLine: "underline",
+            }}
+          >
+            {part}
+          </Text>
+        </Pressable>
+      );
+    } else {
+      part += " ";
+      fancyText.push(<Text key={`text-${index}`}>{part}</Text>);
+    }
+  });
+
+  return <Text>{fancyText}</Text>;
 };
