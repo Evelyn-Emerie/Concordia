@@ -26,16 +26,36 @@ function createWindow() {
         minHeight: 300,
         height: 600,
         title: 'ChatThingie',
+        backgroundColor: '#000',
+        show: false
     });
-
     // win.setAutoHideMenuBar(true);
     win.menuBarVisible = false;
 
     // Load the Express server URL
     // win.loadURL(`http://localhost:${PORT}`);
     win.loadURL(`http://localhost:8081`); //! DEV MODE
+    win.once('ready-to-show', () => {
+        win.show();
+    });
 
+
+    win.webContents.setWindowOpenHandler(({ url }) => {
+        // return require('electron').shell.openExternal(url); Open URL in native browser
+        return {
+            action: 'allow',
+            overrideBrowserWindowOptions: {
+                frame: true,
+                fullscreenable: true,
+                backgroundColor: 'black',
+                autoHideMenuBar: true
+            }
+        }
+
+        // return { action: 'deny' }
+    })
 }
+
 
 // Initialize the app
 app.whenReady().then(() => {
