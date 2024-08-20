@@ -1,5 +1,5 @@
 import { Message } from "../components/ChatWindow";
-import { User } from "./storage";
+import { Token, User } from "./storage";
 
 const ChatCache = new Map();
 
@@ -33,7 +33,7 @@ const clearCache = (id?: number) => {
 export { ChatCache, getMessages, clearCache, sendMessage };
 
 const sendMessage = async (setText: Function, text: string, activeChannel: number) => {
-	const user = await User.getUserObject();
+	const token = await Token.getToken();
 
 	try {
 		setText("");
@@ -43,16 +43,14 @@ const sendMessage = async (setText: Function, text: string, activeChannel: numbe
 			headers: {
 				"Accept": "application/json",
 				"Content-Type": "application/json",
+				"accessToken": token,
 			},
 			body: JSON.stringify({
 				message: text,
-				user: {
-					id: user.id,
-					username: user.username,
-				},
 			}),
 		});
 		const json = await res.json();
+		console.log(json);
 	} catch (error) {
 		console.error(`[CHAT WINDOW ERROR] ${error}`);
 	}

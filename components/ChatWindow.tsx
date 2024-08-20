@@ -4,6 +4,7 @@ import AutoExpandingTextInput from "./AutoTextInput";
 import { getMessages, sendMessage } from "../handlers/chat";
 import { FlatList } from "react-native-gesture-handler";
 import { Colors } from "../constants/Colors";
+import * as Clipboard from "expo-clipboard";
 
 export type Message = {
 	id: string;
@@ -112,40 +113,51 @@ interface MessageCardProps {
 
 const MessageCard = (props: MessageCardProps) => {
 	const timestamp = getTime(parseInt(props.message.id));
+
+	const copyToClipboard = async (text: string) => {
+		await Clipboard.setStringAsync(text);
+	};
+
 	return (
-		<View
-			style={{
-				minHeight: 20,
-				width: "100%",
-				padding: 10,
-				paddingVertical: 2,
-				marginVertical: 2,
+		<Pressable
+			style={{ cursor: "auto" }}
+			onLongPress={() => {
+				copyToClipboard(props.message.text);
 			}}>
-			{props.isLastInGroup ? (
-				<View
-					style={{
-						marginTop: 15,
-						flexDirection: "row",
-						alignItems: "center",
-						marginBottom: 5,
-					}}>
+			<View
+				style={{
+					minHeight: 20,
+					width: "100%",
+					padding: 10,
+					paddingVertical: 2,
+					marginVertical: 2,
+				}}>
+				{props.isLastInGroup ? (
 					<View
 						style={{
-							width: 20,
-							height: 20,
-							borderRadius: 20,
-							marginRight: 5,
-							backgroundColor: "white",
-						}}
-					/>
-					<Text style={{ color: "#fff", fontWeight: "500" }}>{props.message.user.username}</Text>
-					<Text style={{ color: "#ddd", fontSize: 10 }}> {timestamp}</Text>
-				</View>
-			) : null}
-			<Text style={{ color: "white", marginLeft: 10 }} selectable>
-				{processMessage(props.message.text)}
-			</Text>
-		</View>
+							marginTop: 15,
+							flexDirection: "row",
+							alignItems: "center",
+							marginBottom: 5,
+						}}>
+						<View
+							style={{
+								width: 20,
+								height: 20,
+								borderRadius: 20,
+								marginRight: 5,
+								backgroundColor: "white",
+							}}
+						/>
+						<Text style={{ color: "#fff", fontWeight: "500" }}>{props.message.user.username}</Text>
+						<Text style={{ color: "#ddd", fontSize: 10 }}> {timestamp}</Text>
+					</View>
+				) : null}
+				<Text style={{ color: "white", marginLeft: 10 }} selectable>
+					{processMessage(props.message.text)}
+				</Text>
+			</View>
+		</Pressable>
 	);
 };
 
