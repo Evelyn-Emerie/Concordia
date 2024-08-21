@@ -1,12 +1,18 @@
 const { app, BrowserWindow } = require('electron');
 const express = require('express');
 const path = require('node:path');
+const cors = require('cors');
+const settings = require('./handlers/settings');
 
 const localserver = express();
-const PORT = 3001;
+const PORT = require('../constants/LocalServer.json').port;
+
 
 // Serve static files from the 'dist' directory
+localserver.use(cors());
 localserver.use(express.static(path.join(__dirname, 'dist')));
+localserver.use(express.json());
+
 
 // Route to serve the index.html
 localserver.get('*', (req, res) => {
@@ -29,19 +35,22 @@ function createWindow() {
         backgroundColor: '#000',
         show: false
     });
-    // win.setAutoHideMenuBar(true);
+
     win.menuBarVisible = false;
 
     // Load the Express server URL
     // win.loadURL(`http://localhost:${PORT}`);
+
     win.loadURL(`http://localhost:8081`); //! DEV MODE
+
     win.once('ready-to-show', () => {
         win.show();
     });
 
 
     win.webContents.setWindowOpenHandler(({ url }) => {
-        // return require('electron').shell.openExternal(url); Open URL in native browser
+        if (settings.getSettings().LinkInNative)
+            return require('electron').shell.openExternal(url); // Open URL in native browser
         return {
             action: 'allow',
             overrideBrowserWindowOptions: {
@@ -51,8 +60,6 @@ function createWindow() {
                 autoHideMenuBar: true
             }
         }
-
-        // return { action: 'deny' }
     })
 }
 
@@ -74,3 +81,6 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
+
+settings.loadSettings();
+settings.handleUpdates(localserver);

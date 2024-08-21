@@ -46,8 +46,6 @@ export default function AccountSettingsPage() {
 						setId(t);
 					}}
 					onBlur={() => {
-						console.log(`SAVING: ${id}`);
-
 						storeUser({
 							id: id ?? "",
 							username: user?.username ?? "",
