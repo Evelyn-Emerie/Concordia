@@ -33,6 +33,7 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 					// @ts-ignore
 					outlineStyle: "none", //! Purely for WEB only
 					fontSize: 14,
+					paddingRight: 10,
 				}}
 				value={props.text}
 				onKeyPress={(event) => {
@@ -54,10 +55,14 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 				placeholder="Type a message here..."
 				placeholderTextColor={"#626262"}
 				underlineColorAndroid={"transparent"}
+				onContentSizeChange={(e) => {
+					if (props.text.length > 1) setInputHeight(Math.min(Math.round(e.nativeEvent.contentSize.height / 20), 10) * 20);
+				}}
 				onChangeText={(text) => {
 					setIsSendable(text.length > 0);
 					const textLines = text.split("\n").length; // Calculate amount of lines
-					setInputHeight(textLines * 20);
+
+					if (text.length < 1) setInputHeight(textLines * 20);
 					props.setText(text); //Updated the text to reflect changes
 				}}
 				multiline={true}
