@@ -36,7 +36,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 	};
 
 	useEffect(() => {
-		setLoading(true);
+		if (!data) setLoading(true);
 		getData();
 	}, [props.activeChannel]);
 
@@ -75,7 +75,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 					}}
 					data={data}
 					keyExtractor={({ id }) => id}
-					renderItem={({ item, index }) => <MessageCard message={item} isLastInGroup={index === data.length - 1 || data[index].user.id !== data[index + 1].user.id} />}
+					renderItem={({ item, index }) => <MessageCard message={item} isLastInGroup={index === data.length - 1 || data[index].user.id !== data[index + 1].user.id || new Date(data[index].id).toDateString() !== new Date(data[index + 1].id).toDateString()} />}
 					inverted={true}
 					showsVerticalScrollIndicator={false}
 				/>
@@ -118,48 +118,55 @@ const MessageCard = (props: MessageCardProps) => {
 		await Clipboard.setStringAsync(text);
 	};
 
+	const [hover, setHover] = useState(false);
+
 	return (
-		<Pressable
-			style={{ cursor: "auto" }}
-			onLongPress={() => {
-				copyToClipboard(props.message.text);
+		<View
+			style={{
+				minHeight: 20,
+				width: "100%",
+				paddingHorizontal: 10,
+				paddingTop: props.isLastInGroup ? 2 : 0,
+				marginTop: props.isLastInGroup ? 10 : 0,
 			}}>
-			<View
-				style={{
-					minHeight: 20,
-					width: "100%",
-					padding: 10,
-					paddingVertical: 2,
-					marginVertical: 2,
-				}}>
-				{props.isLastInGroup ? (
+			{props.isLastInGroup ? (
+				<View
+					style={{
+						flexDirection: "row",
+						alignItems: "flex-end",
+						marginBottom: 5,
+					}}>
 					<View
 						style={{
-							marginTop: 15,
-							flexDirection: "row",
-							alignItems: "center",
-							marginBottom: 5,
+							width: 30,
+							height: 30,
+							borderRadius: 20,
+							marginRight: 5,
+							overflow: "hidden",
 						}}>
-						<View
-							style={{
-								width: 20,
-								height: 20,
-								borderRadius: 20,
-								marginRight: 5,
-								backgroundColor: "white",
-								overflow: "hidden",
-							}}>
-							{props.message.user.profilePicture ? <Image source={{ uri: `https://api.staryhub.net/users/pfp/${props.message.user.profilePicture}`, width: 20, height: 20 }} /> : null}
-						</View>
-						<Text style={{ color: "#fff", fontWeight: "500" }}>{props.message.user.username}</Text>
-						<Text style={{ color: "#ddd", fontSize: 10 }}> {timestamp}</Text>
+						{props.message.user.profilePicture ? <Image source={{ uri: `https://api.staryhub.net/users/pfp/${props.message.user.profilePicture}`, width: 30, height: 30 }} /> : null}
 					</View>
-				) : null}
-				<Text style={{ color: "white", marginLeft: 10 }} selectable>
+					<Text style={{ color: "#fff", fontWeight: "500", marginBottom: 5 }}>{props.message.user.username}</Text>
+					<Text style={{ color: "#ddd", fontSize: 10, marginBottom: 5 }}> {timestamp}</Text>
+				</View>
+			) : null}
+			<Pressable
+				style={{ cursor: "auto" }}
+				onLongPress={() => {
+					if (Platform.OS != "web") copyToClipboard(props.message.text);
+				}}
+				onHoverIn={() => {
+					setHover(true);
+				}}
+				onHoverOut={() => {
+					setHover(false);
+				}}>
+				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent" }} selectable>
 					{processMessage(props.message.text)}
+					<Text style={{ color: hover ? "white" : "#444", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text>
 				</Text>
-			</View>
-		</Pressable>
+			</Pressable>
+		</View>
 	);
 };
 

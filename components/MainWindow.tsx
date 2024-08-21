@@ -7,7 +7,6 @@ import ChatWindow, { Message } from "../components/ChatWindow";
 import { storeToken, storeUser, Token } from "../handlers/storage";
 
 const loadUser = async () => {
-	await storeToken("1234");
 	const token = await Token.getToken();
 
 	try {
