@@ -6,8 +6,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AccountSettingsPage from "./account";
 import TestPage from "./test";
-import { Server } from "../../components/ServerList";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LocalSettings, TypeLocalSettings } from "../../handlers/storage";
 
 const settings = [
 	{
@@ -27,57 +26,19 @@ const settings = [
 	},
 ];
 
-export const getLocalSettings = async () => {
-	// Web
-	if (Platform.OS == "web")
-		try {
-			const response = await fetch(`http://127.0.0.1:${require("../../constants/LocalServer.json").port}/settings`, {
-				method: "POST",
-				headers: {
-					"Accept": "*/*",
-					"Content-Type": "application/json",
-				},
-			});
-			const json = await response.json();
-
-			localSettings = json;
-
-			if (localSettings)
-				localSettings.servers.forEach((server, index) => {
-					//@ts-ignore
-					localSettings.servers[index].id = index;
-				});
-
-			return localSettings;
-		} catch (e) {
-			console.error(e);
-		}
-
-	// Android/iOS
-	localSettings = JSON.parse((await AsyncStorage.getItem("localSettings")) ?? "{}");
-	if (localSettings?.servers)
-		localSettings.servers.forEach((server, index) => {
-			//@ts-ignore
-			localSettings.servers[index].id = index;
-		});
-	return localSettings;
-};
-
-type LocalSettings = {
-	servers: Server[];
-	LinkInNative: boolean;
-};
-
-export let localSettings: LocalSettings | null = null;
+export let preLoadedSettings: TypeLocalSettings;
 
 export default function SettingsScreen() {
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const mainWindow = (selectedIndex: number) => {
 		return settings[0].settings[selectedIndex].view;
 	};
+
 	useEffect(() => {
-		getLocalSettings();
+		const load = async () => (preLoadedSettings = await LocalSettings.get());
+		load();
 	}, []);
+
 	return (
 		<GestureHandlerRootView>
 			<SafeAreaView

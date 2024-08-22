@@ -2,7 +2,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState, useRef, useEffect } from "react";
 import { View, Animated, Easing, Pressable, Text, Image } from "react-native";
-import { localSettings } from "../app/settings/settings";
+import { LocalSettings } from "../handlers/storage";
 
 export type Server = {
 	id: number;
@@ -20,8 +20,12 @@ export default function ServerList() {
 	};
 
 	useEffect(() => {
-		if (localSettings?.servers) setServerList(localSettings?.servers);
-	}, [localSettings?.servers]);
+		const load = async () => {
+			const settings = await LocalSettings.get();
+			if (settings.servers) setServerList(settings.servers);
+		};
+		load();
+	}, []);
 
 	const router = useRouter();
 

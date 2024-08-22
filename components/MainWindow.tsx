@@ -4,9 +4,8 @@ import SideBar from "../components/SideBar";
 import { Keyboard, Platform, View } from "react-native";
 import { Directions, DrawerLayout, Gesture, GestureDetector } from "react-native-gesture-handler";
 import ChatWindow, { Message } from "../components/ChatWindow";
-import { storeUser, Token } from "../handlers/storage";
+import { LocalSettings, storeUser, Token } from "../handlers/storage";
 import Loading from "../app/loading";
-import { getLocalSettings } from "../app/settings/settings";
 
 const loadUser = async (setLoading: Function) => {
 	const token = await Token.getToken();
@@ -21,7 +20,7 @@ const loadUser = async (setLoading: Function) => {
 				},
 			}),
 			// Load settings
-			getLocalSettings(),
+			LocalSettings.get(),
 		]);
 
 		// Load the user

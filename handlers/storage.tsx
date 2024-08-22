@@ -1,4 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Server } from "../components/ServerList";
+import { Platform } from "react-native";
 
 export type UserType = {
 	id: string;
@@ -71,4 +73,43 @@ const getToken = async () => {
 	return ""; // Fixes typescript bullshit, do not REMOVE
 };
 
-export { storeUser, storeToken };
+export type TypeLocalSettings = {
+	servers: Server[];
+	LinkInNative: boolean;
+};
+class LocalSettings {
+	static settings: TypeLocalSettings;
+
+	static async get() {
+		if (!LocalSettings.settings) {
+			LocalSettings.settings = await getLocalSettings();
+		}
+		return LocalSettings.settings;
+	}
+
+	static async save(newData: typeof this.settings) {
+		await AsyncStorage.setItem("localSettings", JSON.stringify(newData));
+		return newData;
+	}
+}
+export { storeUser, storeToken, LocalSettings };
+
+const getLocalSettings = async () => {
+	// If running on web, get settings from electron's storage
+	if (Platform.OS == "web")
+		try {
+			const response = await fetch(`http://127.0.0.1:${require("../constants/LocalServer.json").port}/settings`, {
+				method: "POST",
+				headers: {
+					"Accept": "*/*",
+					"Content-Type": "application/json",
+				},
+			});
+			return await response.json();
+		} catch (e) {
+			console.error(e);
+		}
+
+	// If running on Android/iOS get settings from react storage
+	return await JSON.parse((await AsyncStorage.getItem("localSettings")) ?? "{}");
+};
