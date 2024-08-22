@@ -8,6 +8,13 @@ const loadSettings = async () => {
 
 const getSettings = () => {
     return settings = {
+        servers: [
+            {
+                title: 'A real server!',
+                ip: 'https://api.staryhub.net',
+                iconURL: 'https://i.pinimg.com/564x/79/c1/8f/79c18f71503dbfbddbbefe67f809f1c6.jpg'
+            }
+        ],
         LinkInNative: LinkInNative
     }
 }

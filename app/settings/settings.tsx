@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AccountSettingsPage from "./account";
 import TestPage from "./test";
+import { Server } from "../../components/ServerList";
 
 const settings = [
 	{
@@ -25,7 +26,7 @@ const settings = [
 	},
 ];
 
-const getLocalSettings = async () => {
+export const getLocalSettings = async () => {
 	try {
 		const response = await fetch(`http://127.0.0.1:${require("../../constants/LocalServer.json").port}/settings`, {
 			method: "POST",
@@ -35,13 +36,23 @@ const getLocalSettings = async () => {
 			},
 		});
 		const json = await response.json();
+
 		localSettings = json;
+
+		if (localSettings)
+			localSettings.servers.forEach((server, index) => {
+				//@ts-ignore
+				localSettings.servers[index].id = index;
+			});
+
+		return localSettings;
 	} catch (e) {
 		console.error(e);
 	}
 };
 
 type LocalSettings = {
+	servers: Server[];
 	LinkInNative: boolean;
 };
 

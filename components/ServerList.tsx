@@ -1,37 +1,35 @@
-import { EvilIcons, FontAwesome6, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { Link, useRouter } from "expo-router";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useState, useRef, useEffect } from "react";
 import { View, Animated, Easing, Pressable, Text, Image } from "react-native";
+import { localSettings } from "../app/settings/settings";
 
-type Server = {
-	id: string;
-	name: string;
-	iconURI?: string;
+export type Server = {
+	id: number;
+	title: string;
+	ip: string;
+	iconURL?: string;
 };
 
 export default function ServerList() {
-	const [selectedId, setSelectedId] = useState("1");
-	const serverList: Server[] = [
-		{
-			id: "1",
-			name: "A real server!",
-		},
-		{
-			id: "2",
-			name: "SuperCool Server!",
-		},
-	];
+	const [selectedId, setSelectedId] = useState(0);
+	const [serverList, setServerList] = useState<Server[]>([]);
 
-	const handleServerSelect = (id: string) => {
+	const handleServerSelect = (id: number) => {
 		setSelectedId(id);
 	};
+
+	useEffect(() => {
+		if (localSettings?.servers) setServerList(localSettings?.servers);
+		console.log(serverList);
+	}, [localSettings?.servers]);
 
 	const router = useRouter();
 
 	return (
 		<View style={{ marginHorizontal: 5 }}>
-			{serverList.map((server) => {
-				return <ServerIcon key={server.id} onPressed={handleServerSelect} id={server.id} selected={server.id == selectedId} iconURI={server.iconURI} name={server.name} />;
+			{serverList.map((server, index) => {
+				return <ServerIcon key={server.ip} onPressed={handleServerSelect} server={server} selected={selectedId == index} />;
 			})}
 			<AddServer />
 			<View style={{ flex: 1 }} />
@@ -53,9 +51,7 @@ export default function ServerList() {
 }
 
 interface ServerIconProps {
-	id?: string;
-	name: string;
-	iconURI?: string;
+	server: Server;
 	selected?: boolean;
 	onPressed?: Function;
 }
@@ -81,7 +77,7 @@ function ServerIcon(props: ServerIconProps) {
 	return (
 		<Pressable
 			onPress={() => {
-				props.onPressed ? props.onPressed(props.id) : null;
+				props.onPressed ? props.onPressed(props.server.id) : null;
 			}}
 			onPointerEnter={() => {
 				setHover(true);
@@ -122,7 +118,7 @@ function ServerIcon(props: ServerIconProps) {
 						}}
 					/>
 					<Text style={{ color: "white", flexWrap: "nowrap" }} numberOfLines={1} ellipsizeMode="tail">
-						{props.name}
+						{props.server.title}
 					</Text>
 				</View>
 			) : null}
@@ -134,9 +130,10 @@ function ServerIcon(props: ServerIconProps) {
 					justifyContent: "center",
 					alignItems: "center",
 					backgroundColor: "#323232",
+					overflow: "hidden",
 					borderRadius: borderRadius, // Use Animated.Value for smooth transitions
 				}}>
-				{props.iconURI ? <Image source={{ uri: props.iconURI }} /> : <Ionicons name="code" color={"white"} size={25} />}
+				{props.server.iconURL ? <Image source={{ uri: props.server.iconURL, width: 50, height: 50 }} /> : <Ionicons name="code" color={"white"} size={25} />}
 			</Animated.View>
 		</Pressable>
 	);
