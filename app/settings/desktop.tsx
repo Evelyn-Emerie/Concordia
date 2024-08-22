@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { View, Text } from "react-native";
 import SettingsSwitchButton from "../../components/SettingsSwitchButton";
-import { TypeLocalSettings } from "../../handlers/storage";
 
-export default function TestPage(props: { preload: Function }) {
+export default function DesktopSettings(props: { preload: Function }) {
 	const [state, setState] = useState(props.preload().LinkInNative ?? false);
 	const sendUpdate = async (newState: boolean) => {
 		const PORT = require("../../constants/LocalServer.json").port;

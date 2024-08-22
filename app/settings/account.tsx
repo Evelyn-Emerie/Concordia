@@ -3,22 +3,27 @@ import SettingsTextInput from "../../components/SettingsTextInput";
 import ServerPageLabel from "../../components/ServerPageLabel";
 import { useEffect, useState } from "react";
 import { User, UserType, storeUser } from "../../handlers/storage";
+import Loading from "../loading";
 
-async function loadData(setLoadState: Function, setUser: Function, setId: Function) {
+async function loadData(setUser: Function) {
 	const user = await User.getUserObject();
 	setUser(user);
-	setId(user.id);
-	setLoadState(true);
 }
 
 export default function AccountSettingsPage() {
 	const [user, setUser] = useState<UserType>();
-	const [id, setId] = useState("");
-	const [loaded, setLoaded] = useState(false);
+	const [username, setUsername] = useState("");
 
 	useEffect(() => {
-		loadData(setLoaded, setUser, setId);
+		loadData(setUser);
 	}, []);
+
+	useEffect(() => {
+		const l = async () => {
+			setUsername(user?.username ?? "");
+		};
+		if (user) l();
+	}, [user]);
 
 	return (
 		<View
@@ -27,31 +32,19 @@ export default function AccountSettingsPage() {
 				width: "100%",
 			}}>
 			<ServerPageLabel title="Account" />
-			{/* <Text style={{ color: "white" }}></Text> */}
-			{!loaded ? (
-				<View
-					style={{
-						justifyContent: "center",
-						alignItems: "center",
-						flex: 1,
-						width: "100%",
-					}}>
-					<ActivityIndicator />
-				</View>
+			{!user ? (
+				<Loading />
 			) : (
-				<SettingsTextInput
-					label="UserID"
-					text={id}
-					onChangeText={(t: string) => {
-						setId(t);
-					}}
-					onBlur={() => {
-						storeUser({
-							id: id ?? "",
-							username: user?.username ?? "",
-						});
-					}}
-				/>
+				<View>
+					<SettingsTextInput
+						label="Username"
+						text={username}
+						onChangeText={(t: string) => {
+							setUsername(t);
+						}}
+						onBlur={() => {}}
+					/>
+				</View>
 			)}
 		</View>
 	);

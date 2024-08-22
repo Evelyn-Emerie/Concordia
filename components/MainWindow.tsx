@@ -9,6 +9,7 @@ import Loading from "../app/loading";
 
 const loadUser = async (setLoading: Function) => {
 	const token = await Token.getToken();
+
 	if (!token) return;
 
 	try {

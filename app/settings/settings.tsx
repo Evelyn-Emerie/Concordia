@@ -5,7 +5,7 @@ import { FlatList, Platform, Pressable, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AccountSettingsPage from "./account";
-import TestPage from "./test";
+import DesktopSettings from "./desktop";
 import { LocalSettings, TypeLocalSettings } from "../../handlers/storage";
 import Loading from "../loading";
 
@@ -20,21 +20,24 @@ const settings = [
 				title: "Account",
 				view: <AccountSettingsPage key={0} />,
 			},
-			{
-				index: 1,
-				title: "Super Test",
-				view: (
-					<TestPage
-						key={1}
-						preload={() => {
-							return preLoadedSettings;
-						}}
-					/>
-				),
-			},
 		],
 	},
 ];
+
+if (Platform.OS == "web") {
+	settings[0].settings.push({
+		index: 1,
+		title: "Super Test",
+		view: (
+			<DesktopSettings
+				key={1}
+				preload={() => {
+					return preLoadedSettings;
+				}}
+			/>
+		),
+	});
+}
 
 export default function SettingsScreen() {
 	const [selectedIndex, setSelectedIndex] = useState(0);

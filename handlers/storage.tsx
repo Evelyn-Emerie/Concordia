@@ -11,7 +11,7 @@ export class User {
 	static user: UserType = {} as UserType;
 
 	static async getUserObject() {
-		if (!User.user.id) {
+		if (!User.user.username) {
 			User.user = await getUser();
 		}
 
@@ -34,10 +34,16 @@ const storeUser = async (user: UserType) => {
 
 const getUser = async () => {
 	try {
-		const userString = await AsyncStorage.getItem("user");
+		const response = await fetch("https://api.staryhub.net/users/:id", {
+			headers: {
+				"Accept": "*/*",
+				"Content-Type": "application/json",
+				"accesstoken": await Token.getToken(),
+			},
+		});
+		const user = await response.json();
 
-		if (!userString) return {};
-		return JSON.parse(userString);
+		return user;
 	} catch (e) {
 		console.error(e);
 	}
