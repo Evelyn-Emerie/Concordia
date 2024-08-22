@@ -4,7 +4,7 @@ import SideBar from "../components/SideBar";
 import { Keyboard, Platform, View } from "react-native";
 import { Directions, DrawerLayout, Gesture, GestureDetector } from "react-native-gesture-handler";
 import ChatWindow, { Message } from "../components/ChatWindow";
-import { storeToken, storeUser, Token } from "../handlers/storage";
+import { storeUser, Token } from "../handlers/storage";
 import Loading from "../app/loading";
 import { getLocalSettings } from "../app/settings/settings";
 
@@ -39,6 +39,7 @@ export default function MainWindow() {
 	const [selectedChannel, setSelectedChannel] = useState(0);
 	const [title, setTitle] = useState("");
 	const [loading, setLoading] = useState(true);
+	const drawer = useRef<DrawerLayout>(null);
 	loadUser(setLoading);
 
 	const getActiveChannel = () => {
@@ -62,8 +63,6 @@ export default function MainWindow() {
 				<ChatWindow newMessage={newMessage} activeChannel={getActiveChannel} title={title} />
 			</View>
 		);
-
-	const drawer = useRef<DrawerLayout>(null);
 
 	const fling = Gesture.Fling();
 	fling.direction(Directions.RIGHT);

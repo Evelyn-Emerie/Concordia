@@ -27,7 +27,7 @@ localserver.listen(PORT, () => {
 // Create the Electron window
 function createWindow() {
     const win = new BrowserWindow({
-        minWidth: 500,
+        minWidth: 600,
         width: 1000,
         minHeight: 300,
         height: 600,

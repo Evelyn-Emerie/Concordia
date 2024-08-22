@@ -21,7 +21,6 @@ export default function ServerList() {
 
 	useEffect(() => {
 		if (localSettings?.servers) setServerList(localSettings?.servers);
-		console.log(serverList);
 	}, [localSettings?.servers]);
 
 	const router = useRouter();
