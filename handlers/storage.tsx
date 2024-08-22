@@ -84,6 +84,7 @@ class LocalSettings {
 		if (!LocalSettings.settings) {
 			LocalSettings.settings = await getLocalSettings();
 		}
+
 		return LocalSettings.settings;
 	}
 

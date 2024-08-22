@@ -1,8 +1,9 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState, useRef, useEffect } from "react";
-import { View, Animated, Easing, Pressable, Text, Image } from "react-native";
+import { View, Animated, Easing, Pressable, Text, Image, Modal, TouchableWithoutFeedback } from "react-native";
 import { LocalSettings } from "../handlers/storage";
+import { Colors } from "../constants/Colors";
 
 export type Server = {
 	id: number;
@@ -143,8 +144,31 @@ function ServerIcon(props: ServerIconProps) {
 }
 
 function AddServer() {
+	const [modalVisible, setModalVisible] = useState(false);
 	return (
-		<Pressable onPress={() => {}}>
+		<Pressable
+			onPress={() => {
+				setModalVisible(true);
+			}}>
+			<Modal
+				transparent={true}
+				visible={modalVisible}
+				onRequestClose={() => {
+					setModalVisible(false);
+				}}
+				animationType={"fade"}>
+				<Pressable
+					style={{ flex: 1, width: "100%", justifyContent: "center", alignItems: "center", cursor: "auto", backgroundColor: "#000000EE" }}
+					onPress={() => {
+						setModalVisible(false);
+					}}>
+					<TouchableWithoutFeedback>
+						<View style={{ backgroundColor: Colors.dark.background, width: "90%", maxWidth: 500, height: 300, borderRadius: 4 }}>
+							<Text>Hello world!</Text>
+						</View>
+					</TouchableWithoutFeedback>
+				</Pressable>
+			</Modal>
 			<View
 				style={{
 					width: 50,

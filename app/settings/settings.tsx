@@ -7,6 +7,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AccountSettingsPage from "./account";
 import TestPage from "./test";
 import { LocalSettings, TypeLocalSettings } from "../../handlers/storage";
+import Loading from "../loading";
+
+let preLoadedSettings: TypeLocalSettings;
 
 const settings = [
 	{
@@ -20,22 +23,28 @@ const settings = [
 			{
 				index: 1,
 				title: "Super Test",
-				view: <TestPage key={1} />,
+				view: (
+					<TestPage
+						key={1}
+						preload={() => {
+							return preLoadedSettings;
+						}}
+					/>
+				),
 			},
 		],
 	},
 ];
 
-export let preLoadedSettings: TypeLocalSettings;
-
 export default function SettingsScreen() {
 	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [loaded, setLoaded] = useState(false);
 	const mainWindow = (selectedIndex: number) => {
 		return settings[0].settings[selectedIndex].view;
 	};
 
 	useEffect(() => {
-		const load = async () => (preLoadedSettings = await LocalSettings.get());
+		const load = async () => ((preLoadedSettings = await LocalSettings.get()), setLoaded(true));
 		load();
 	}, []);
 
@@ -55,7 +64,7 @@ export default function SettingsScreen() {
 						<SettingsList selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} />
 					</View>
 				</View>
-				{mainWindow(selectedIndex)}
+				{!loaded ? <Loading /> : mainWindow(selectedIndex)}
 			</SafeAreaView>
 		</GestureHandlerRootView>
 	);

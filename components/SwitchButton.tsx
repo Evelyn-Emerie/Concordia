@@ -6,7 +6,6 @@ export default (props: { onPress?: Function; state: boolean; setState: Function 
 		<Pressable
 			onPress={() => {
 				props.setState(!props.state);
-				console.log(!props.state);
 
 				if (props.onPress) props.onPress(!props.state);
 			}}>

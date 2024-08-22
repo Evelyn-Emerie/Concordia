@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { View, Text } from "react-native";
 import SettingsSwitchButton from "../../components/SettingsSwitchButton";
-import { preLoadedSettings } from "./settings";
+import { TypeLocalSettings } from "../../handlers/storage";
 
-export default function TestPage() {
-	const [state, setState] = useState(preLoadedSettings.LinkInNative ?? false);
+export default function TestPage(props: { preload: Function }) {
+	const [state, setState] = useState(props.preload().LinkInNative ?? false);
 	const sendUpdate = async (newState: boolean) => {
 		const PORT = require("../../constants/LocalServer.json").port;
 		try {
@@ -22,6 +22,7 @@ export default function TestPage() {
 			console.error(e);
 		}
 	};
+
 	return (
 		<View
 			style={{

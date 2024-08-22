@@ -50,7 +50,6 @@ const sendMessage = async (setText: Function, text: string, activeChannel: numbe
 			}),
 		});
 		const json = await res.json();
-		console.log(json);
 	} catch (error) {
 		console.error(`[CHAT WINDOW ERROR] ${error}`);
 	}

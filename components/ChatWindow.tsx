@@ -5,6 +5,7 @@ import { getMessages, sendMessage } from "../handlers/chat";
 import { FlatList } from "react-native-gesture-handler";
 import { Colors } from "../constants/Colors";
 import * as Clipboard from "expo-clipboard";
+import Loading from "../app/loading";
 
 export type Message = {
 	id: string;
@@ -64,9 +65,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 				<Text style={{ color: "white", fontSize: 18 }}>{props.title}</Text>
 			</View>
 			{isLoading ? (
-				<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-					<ActivityIndicator />
-				</View>
+				<Loading />
 			) : data.length > 0 ? (
 				<FlatList
 					style={{
@@ -161,9 +160,9 @@ const MessageCard = (props: MessageCardProps) => {
 				onHoverOut={() => {
 					setHover(false);
 				}}>
-				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent" }} selectable>
+				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text" }}>
 					{processMessage(props.message.text)}
-					<Text style={{ color: hover ? "white" : "#444", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text>
+					{hover ? <Text style={{ color: "white", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text> : null}
 				</Text>
 			</Pressable>
 		</View>
