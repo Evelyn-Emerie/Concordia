@@ -1,8 +1,8 @@
-import { View, Text, ActivityIndicator } from "react-native";
+import { View } from "react-native";
 import SettingsTextInput from "../../components/SettingsTextInput";
 import ServerPageLabel from "../../components/ServerPageLabel";
 import { useEffect, useState } from "react";
-import { User, UserType, storeUser } from "../../handlers/storage";
+import { User, UserType } from "../../handlers/storage";
 import Loading from "../../components/loading";
 
 async function loadData(setUser: Function) {
