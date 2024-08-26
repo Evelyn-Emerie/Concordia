@@ -5,7 +5,7 @@ const cors = require('cors');
 const settings = require('./handlers/settings');
 
 const localserver = express();
-const PORT = require('../constants/LocalServer.json').port;
+const PORT = require('./LocalServer.json').port;
 
 
 // Serve static files from the 'dist' directory
@@ -31,7 +31,7 @@ function createWindow() {
         width: 1000,
         minHeight: 300,
         height: 600,
-        title: 'ChatThingie',
+        title: 'Concordia',
         backgroundColor: '#000',
         show: false
     });
@@ -47,6 +47,9 @@ function createWindow() {
         win.show();
     });
 
+    win.on('page-title-updated', (event) => {
+        event.preventDefault();
+    });
 
     win.webContents.setWindowOpenHandler(({ url }) => {
         if (settings.getSettings().LinkInNative)

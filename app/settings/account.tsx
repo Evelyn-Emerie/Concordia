@@ -3,7 +3,7 @@ import SettingsTextInput from "../../components/SettingsTextInput";
 import ServerPageLabel from "../../components/ServerPageLabel";
 import { useEffect, useState } from "react";
 import { User, UserType, storeUser } from "../../handlers/storage";
-import Loading from "../loading";
+import Loading from "../../components/loading";
 
 async function loadData(setUser: Function) {
 	const user = await User.getUserObject();

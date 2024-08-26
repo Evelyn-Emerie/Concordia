@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AccountSettingsPage from "./account";
 import DesktopSettings from "./desktop";
 import { LocalSettings, TypeLocalSettings } from "../../handlers/storage";
-import Loading from "../loading";
+import Loading from "../../components/loading";
 
 let preLoadedSettings: TypeLocalSettings;
 

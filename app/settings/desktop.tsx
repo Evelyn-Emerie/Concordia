@@ -5,7 +5,7 @@ import SettingsSwitchButton from "../../components/SettingsSwitchButton";
 export default function DesktopSettings(props: { preload: Function }) {
 	const [state, setState] = useState(props.preload().LinkInNative ?? false);
 	const sendUpdate = async (newState: boolean) => {
-		const PORT = require("../../constants/LocalServer.json").port;
+		const PORT = require("../../electron/LocalServer.json").port;
 		try {
 			await fetch(`http://127.0.0.1:${PORT}/settings/setNewWindow`, {
 				method: "POST",

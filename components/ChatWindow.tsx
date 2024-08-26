@@ -1,11 +1,11 @@
-import { ActivityIndicator, Image, Linking, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Image, Linking, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import AutoExpandingTextInput from "./AutoTextInput";
 import { getMessages, sendMessage } from "../handlers/chat";
 import { FlatList } from "react-native-gesture-handler";
 import { Colors } from "../constants/Colors";
 import * as Clipboard from "expo-clipboard";
-import Loading from "../app/loading";
+import Loading from "./loading";
 
 export type Message = {
 	id: string;
@@ -30,6 +30,8 @@ export default function ChatWindow(props: ChatWindowProps) {
 	const [isLoading, setLoading] = useState(true);
 	const [data, setData] = useState<Message[]>([]);
 	const [text, setText] = useState("");
+	const [height, setHeight] = useState(0);
+	const superRef = useRef(null);
 
 	const getData = async () => {
 		setData(await getMessages(props.activeChannel()));
@@ -46,21 +48,27 @@ export default function ChatWindow(props: ChatWindowProps) {
 		setData((prevData) => [message, ...prevData]);
 	}, [props.newMessage]);
 
+	useEffect(() => {
+		if (superRef.current) {
+			//@ts-ignore
+			// ts is being retarded idfk
+			superRef.current.scrollToEnd({ animated: false });
+		}
+	}, [data]);
+
 	return (
 		<View
 			style={{
 				flex: 1,
 				width: "100%",
-				backgroundColor: "#111111",
+				backgroundColor: Colors.dark.background,
 			}}>
 			<View
 				style={{
 					height: 50,
-					backgroundColor: "#161616",
+					backgroundColor: Colors.dark.background,
 					justifyContent: "center",
 					paddingHorizontal: 20,
-					borderBottomWidth: 2,
-					borderBottomColor: "#444",
 				}}>
 				<Text style={{ color: "white", fontSize: 18 }}>{props.title}</Text>
 			</View>
@@ -68,14 +76,38 @@ export default function ChatWindow(props: ChatWindowProps) {
 				<Loading />
 			) : data.length > 0 ? (
 				<FlatList
+					ref={superRef}
 					style={{
 						width: "98%",
 						marginHorizontal: "auto",
 					}}
-					data={data}
+					data={[...data].reverse()}
 					keyExtractor={({ id }) => id}
-					renderItem={({ item, index }) => <MessageCard message={item} isLastInGroup={index === data.length - 1 || data[index].user.id !== data[index + 1].user.id || new Date(data[index].id).toDateString() !== new Date(data[index + 1].id).toDateString()} />}
-					inverted={true}
+					ListHeaderComponent={<Text style={{ color: "white", fontSize: 30, fontWeight: "600", marginTop: height - 60 }}>Start of the channel {props.title}</Text>}
+					renderItem={({ item, index }) => {
+						return (
+							<MessageCard
+								message={item}
+								isLastInGroup={
+									index == 0 || //first message has always header
+									// Same user && same day?
+									data[index].user.id != data[index - 1].user.id ||
+									new Date(data[index].id).toLocaleDateString() !== new Date(data[index - 1].id).toLocaleDateString()
+								}
+							/>
+						);
+					}}
+					onStartReached={() => {
+						console.log("end!");
+						// TODO implement loading more messages when reaching end
+					}}
+					onContentSizeChange={() => {
+						setTimeout(() => {
+							//@ts-ignore
+							superRef.current.scrollToEnd({ animated: false });
+						}, 100);
+					}}
+					onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
 					showsVerticalScrollIndicator={false}
 				/>
 			) : (
@@ -102,7 +134,7 @@ const getTime = (timestamp: number) => {
 
 	if (date.getDate() == today.getDate()) return `Today at ${date.getHours() > 9 ? date.getHours() : "0" + date.getHours()}:${date.getMinutes() > 9 ? date.getMinutes() : "0" + date.getMinutes()}`;
 
-	return `${date.getDate() > 9 ? date.getDate() : "0" + date.getDate()}/${date.getMonth() + 1 > 9 ? date.getMonth() + 1 : "0" + date.getMonth() + 1}/${date.getFullYear()} at ${date.getHours() > 9 ? date.getHours() : "0" + date.getHours()}:${date.getMinutes() > 9 ? date.getMinutes() : "0" + date.getMinutes()}`;
+	return `${date.getDate() > 9 ? date.getDate() : "0" + date.getDate()}/${date.getMonth() + 1 > 9 ? date.getMonth() + 1 : "0" + (date.getMonth() + 1)}/${date.getFullYear()} at ${date.getHours() > 9 ? date.getHours() : "0" + date.getHours()}:${date.getMinutes() > 9 ? date.getMinutes() : "0" + date.getMinutes()}`;
 };
 
 interface MessageCardProps {

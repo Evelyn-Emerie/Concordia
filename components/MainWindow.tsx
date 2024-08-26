@@ -4,43 +4,12 @@ import SideBar from "../components/SideBar";
 import { Keyboard, Platform, View } from "react-native";
 import { Directions, DrawerLayout, Gesture, GestureDetector } from "react-native-gesture-handler";
 import ChatWindow, { Message } from "../components/ChatWindow";
-import { LocalSettings, storeUser, Token } from "../handlers/storage";
-import Loading from "../app/loading";
-
-const loadUser = async (setLoading: Function) => {
-	const token = await Token.getToken();
-
-	if (!token) return;
-
-	try {
-		const [response, settings] = await Promise.all([
-			// Load user
-			fetch("https://api.staryhub.net/users/:id", {
-				headers: {
-					accesstoken: token,
-				},
-			}),
-			// Load settings
-			LocalSettings.get(),
-		]);
-
-		// Load the user
-		const user = await response.json();
-		storeUser(user);
-
-		setLoading(false);
-	} catch (e) {
-		console.error(e);
-	}
-};
 
 export default function MainWindow() {
 	const [newMessage, setNewMessage] = useState<Message>();
 	const [selectedChannel, setSelectedChannel] = useState(0);
 	const [title, setTitle] = useState("");
-	const [loading, setLoading] = useState(true);
 	const drawer = useRef<DrawerLayout>(null);
-	loadUser(setLoading);
 
 	const getActiveChannel = () => {
 		return selectedChannel;
@@ -51,10 +20,6 @@ export default function MainWindow() {
 	useEffect(() => {
 		getSocket(setNewMessage, getActiveChannel, newMessage);
 	}, [selectedChannel]);
-
-	if (loading) {
-		return <Loading />;
-	}
 
 	if (isWeb)
 		return (

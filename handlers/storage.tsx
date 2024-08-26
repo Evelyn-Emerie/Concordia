@@ -105,7 +105,7 @@ const getLocalSettings = async () => {
 	// If running on web, get settings from electron's storage
 	if (Platform.OS == "web")
 		try {
-			const response = await fetch(`http://127.0.0.1:${require("../constants/LocalServer.json").port}/settings`, {
+			const response = await fetch(`http://127.0.0.1:${require("../electron/LocalServer.json").port}/settings`, {
 				method: "POST",
 				headers: {
 					"Accept": "*/*",
