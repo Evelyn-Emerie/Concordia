@@ -6,6 +6,8 @@ import { FlatList } from "react-native-gesture-handler";
 import { Colors } from "../constants/Colors";
 import * as Clipboard from "expo-clipboard";
 import Loading from "./loading";
+import { Server } from "./ServerList";
+import { Channel } from "./ChannelList";
 
 export type Message = {
 	id: string;
@@ -22,8 +24,8 @@ type User = {
 
 interface ChatWindowProps {
 	newMessage?: Message;
-	activeChannel: Function;
-	title: string;
+	activeChannel?: Channel;
+	server?: Server;
 }
 
 export default function ChatWindow(props: ChatWindowProps) {
@@ -34,7 +36,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 	const superRef = useRef(null);
 
 	const getData = async () => {
-		setData(await getMessages(props.activeChannel()));
+		if (props.activeChannel) setData(await getMessages(props.activeChannel!.id, props.server as Server));
 		setLoading(false);
 	};
 
@@ -56,12 +58,25 @@ export default function ChatWindow(props: ChatWindowProps) {
 		}
 	}, [data]);
 
+	if (!props.server)
+		return (
+			<View style={{ justifyContent: "center", alignContent: "center", width: "100%", flex: 1 }}>
+				<Text style={{ color: "white", textAlign: "center" }}>No selected server</Text>
+			</View>
+		);
+
+	if (!props.activeChannel)
+		return (
+			<View style={{ justifyContent: "center", alignContent: "center", width: "100%", flex: 1 }}>
+				<Text style={{ color: "white", textAlign: "center" }}>No selected channel</Text>
+			</View>
+		);
+
 	return (
 		<View
 			style={{
 				flex: 1,
 				width: "100%",
-				backgroundColor: Colors.dark.background,
 			}}>
 			<View
 				style={{
@@ -70,7 +85,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 					justifyContent: "center",
 					paddingHorizontal: 20,
 				}}>
-				<Text style={{ color: "white", fontSize: 18 }}>{props.title}</Text>
+				<Text style={{ color: "white", fontSize: 18 }}>{props.activeChannel.title}</Text>
 			</View>
 			{isLoading ? (
 				<Loading />
@@ -82,8 +97,8 @@ export default function ChatWindow(props: ChatWindowProps) {
 						marginHorizontal: "auto",
 					}}
 					data={[...data].reverse()}
-					keyExtractor={({ id }) => id}
-					ListHeaderComponent={<Text style={{ color: "white", fontSize: 30, fontWeight: "600", marginTop: height - 60 }}>Start of the channel {props.title}</Text>}
+					// keyExtractor={({ id }) => id}
+					ListHeaderComponent={<Text style={{ color: "white", fontSize: 30, fontWeight: "600", marginTop: height - 60 }}>Start of the channel {props.activeChannel.title}</Text>}
 					renderItem={({ item, index }) => {
 						return (
 							<MessageCard
@@ -94,6 +109,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 									data[index].user.id != data[index - 1].user.id ||
 									new Date(data[index].id).toLocaleDateString() !== new Date(data[index - 1].id).toLocaleDateString()
 								}
+								server={props.server as Server}
 							/>
 						);
 					}}
@@ -122,7 +138,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 			)}
 			<View style={{ height: 10 }} />
 			<View style={{ width: "95%", marginHorizontal: "auto", marginBottom: 10 }}>
-				<AutoExpandingTextInput text={text} setText={setText} onSubmit={() => sendMessage(setText, text, props.activeChannel())} />
+				<AutoExpandingTextInput text={text} setText={setText} onSubmit={() => sendMessage(setText, text, props.activeChannel!.id, props.server as Server)} />
 			</View>
 		</View>
 	);
@@ -140,9 +156,12 @@ const getTime = (timestamp: number) => {
 interface MessageCardProps {
 	message: Message;
 	isLastInGroup: boolean;
+	server: Server;
 }
 
 const MessageCard = (props: MessageCardProps) => {
+	if (!props.message) return;
+
 	const timestamp = getTime(parseInt(props.message.id));
 
 	const copyToClipboard = async (text: string) => {
@@ -175,7 +194,7 @@ const MessageCard = (props: MessageCardProps) => {
 							marginRight: 5,
 							overflow: "hidden",
 						}}>
-						{props.message.user.profilePicture ? <Image source={{ uri: `https://api.staryhub.net/users/pfp/${props.message.user.profilePicture}`, width: 30, height: 30 }} /> : null}
+						{props.message.user.profilePicture ? <Image source={{ uri: `${props.server.ip}/users/pfp/${props.message.user.profilePicture}`, width: 30, height: 30 }} /> : null}
 					</View>
 					<Text style={{ color: "#fff", fontWeight: "500", marginBottom: 5 }}>{props.message.user.username}</Text>
 					<Text style={{ color: "#ddd", fontSize: 10, marginBottom: 5 }}> {timestamp}</Text>

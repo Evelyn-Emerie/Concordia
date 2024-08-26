@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View, Text } from "react-native";
-import SettingsSwitchButton from "../../components/SettingsSwitchButton";
+import SettingsSwitchButton from "../../components/StyledSwitchButton";
 
 export default function DesktopSettings(props: { preload: Function }) {
 	const [state, setState] = useState(props.preload().LinkInNative ?? false);

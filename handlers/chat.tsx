@@ -1,15 +1,16 @@
+import { Server } from "@/components/ServerList";
 import { Message } from "../components/ChatWindow";
-import { Token, User } from "./storage";
+import { Token } from "./storage";
 
 const ChatCache = new Map();
 
-const getMessages = async (channelId: number) => {
+const getMessages = async (channelId: number, server: Server) => {
 	const cached = await ChatCache.get(channelId);
 
 	if (cached) return cached;
 
 	try {
-		const response = await fetch(`https://api.staryhub.net/channels/${channelId}/messages`);
+		const response = await fetch(`${server.ip}/channels/${channelId}/messages`);
 
 		let json = (await response.json()) as Message[];
 
@@ -32,13 +33,13 @@ const clearCache = (id?: number) => {
 
 export { ChatCache, getMessages, clearCache, sendMessage };
 
-const sendMessage = async (setText: Function, text: string, activeChannel: number) => {
+const sendMessage = async (setText: Function, text: string, activeChannel: number, server: Server) => {
 	const token = await Token.getToken();
 
 	try {
 		setText("");
 
-		const res = await fetch(`https://api.staryhub.net/channels/${activeChannel}/messages`, {
+		const res = await fetch(`${server.ip}/channels/${activeChannel}/messages`, {
 			method: "POST",
 			headers: {
 				"Accept": "application/json",

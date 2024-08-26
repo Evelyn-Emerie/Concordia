@@ -33,30 +33,34 @@ const storeUser = async (user: UserType) => {
 };
 
 const getUser = async () => {
-	try {
-		const response = await fetch("https://api.staryhub.net/users/:id", {
-			headers: {
-				"Accept": "*/*",
-				"Content-Type": "application/json",
-				"accesstoken": await Token.getToken(),
-			},
-		});
-		const user = await response.json();
+	const user: UserType = JSON.parse((await AsyncStorage.getItem("user")) ?? "");
+	// const response = await fetch("https://api.staryhub.net/users/:id", {
+	// 	headers: {
+	// 		"Accept": "*/*",
+	// 		"Content-Type": "application/json",
+	// 		"accesstoken": await Token.getToken(),
+	// 	},
+	// });
+	// const user = await response.json();
 
-		return user;
-	} catch (e) {
-		console.error(e);
-	}
+	return user;
 };
 
 export class Token {
-	static token: string;
+	static token: string | null;
 
 	static async getToken() {
 		if (!Token.token) {
 			Token.token = await getToken();
 		}
 		return Token.token;
+	}
+	static async clear() {
+		if (Token.token) {
+			Token.token = null;
+			AsyncStorage.removeItem("token");
+			expo.reloadAppAsync("Logging out...");
+		}
 	}
 }
 

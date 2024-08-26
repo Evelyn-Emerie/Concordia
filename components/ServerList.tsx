@@ -12,12 +12,11 @@ export type Server = {
 	iconURL?: string;
 };
 
-export default function ServerList() {
-	const [selectedId, setSelectedId] = useState(0);
+export default function ServerList(props: { setServer: Function; selectedServer?: Server }) {
 	const [serverList, setServerList] = useState<Server[]>([]);
 
-	const handleServerSelect = (id: number) => {
-		setSelectedId(id);
+	const handleServerSelect = (server: Server) => {
+		props.setServer(server);
 	};
 
 	useEffect(() => {
@@ -32,8 +31,8 @@ export default function ServerList() {
 
 	return (
 		<View style={{ marginHorizontal: 5 }}>
-			{serverList.map((server, index) => {
-				return <ServerIcon key={server.ip} onPressed={handleServerSelect} server={server} selected={selectedId == index} />;
+			{serverList.map((server) => {
+				return <ServerIcon key={server.ip} onPressed={handleServerSelect} server={server} selected={props.selectedServer ? props.selectedServer.id == server.id : false} />;
 			})}
 			<AddServer />
 			<View style={{ flex: 1 }} />
@@ -81,7 +80,7 @@ function ServerIcon(props: ServerIconProps) {
 	return (
 		<Pressable
 			onPress={() => {
-				props.onPressed ? props.onPressed(props.server.id) : null;
+				props.onPressed ? props.onPressed(props.server) : null;
 			}}
 			onPointerEnter={() => {
 				setHover(true);

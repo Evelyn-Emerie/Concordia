@@ -3,7 +3,7 @@ const storage = require('electron-settings');
 let LinkInNative = false;
 
 const loadSettings = async () => {
-    LinkInNative = await storage.get('LinkInNative');
+    LinkInNative = await storage.get('LinkInNative') ?? false;
 }
 
 const getSettings = () => {
@@ -19,7 +19,8 @@ const getSettings = () => {
         LinkInNative: LinkInNative
     }
 }
-
+/*
+*/
 const handleUpdates = (localserver) => {
     // get settings
     localserver.post('/settings', async (req, res) => {

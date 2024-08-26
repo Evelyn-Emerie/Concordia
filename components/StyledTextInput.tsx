@@ -1,6 +1,6 @@
 import { View, Text, TextInput } from "react-native";
 
-export default function SettingsTextInput(props: { label?: string; onChangeText?: Function; onBlur?: Function; text?: string }) {
+export default function SettingsTextInput(props: { label?: string; onChangeText?: Function; onBlur?: Function; text?: string; hidden?: boolean }) {
 	return (
 		<View style={{ width: 200 }}>
 			<Text
@@ -26,6 +26,7 @@ export default function SettingsTextInput(props: { label?: string; onChangeText?
 				onChangeText={(text) => {
 					if (props.onChangeText) props.onChangeText(text);
 				}}
+				secureTextEntry={props.hidden}
 				onBlur={(event) => {
 					if (props.onBlur) props.onBlur(event);
 				}}

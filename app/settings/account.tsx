@@ -1,8 +1,8 @@
-import { View } from "react-native";
-import SettingsTextInput from "../../components/SettingsTextInput";
+import { Button, View } from "react-native";
+import SettingsTextInput from "../../components/StyledTextInput";
 import ServerPageLabel from "../../components/ServerPageLabel";
 import { useEffect, useState } from "react";
-import { User, UserType } from "../../handlers/storage";
+import { Token, User, UserType } from "../../handlers/storage";
 import Loading from "../../components/loading";
 
 async function loadData(setUser: Function) {
@@ -43,6 +43,12 @@ export default function AccountSettingsPage() {
 							setUsername(t);
 						}}
 						onBlur={() => {}}
+					/>
+					<Button
+						title="Log out"
+						onPress={() => {
+							Token.clear();
+						}}
 					/>
 				</View>
 			)}
