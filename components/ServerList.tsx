@@ -1,23 +1,23 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState, useRef, useEffect } from "react";
-import { View, Animated, Easing, Pressable, Text, Image, Modal, TouchableWithoutFeedback } from "react-native";
-import { LocalSettings } from "../handlers/storage";
-import { Colors } from "../constants/Colors";
+import { View, Animated, Easing, Pressable, Text, Image } from "react-native";
+import { LocalSettings, updateServerData } from "../handlers/storage";
+import AddServerModal from "./modals/addServer";
 
 export type Server = {
 	id: number;
+	accessToken: string;
 	title: string;
 	ip: string;
 	iconURL?: string;
 };
 
-export default function ServerList() {
-	const [selectedId, setSelectedId] = useState(0);
+export default function ServerList(props: { setServer: Function; selectedServer?: Server }) {
 	const [serverList, setServerList] = useState<Server[]>([]);
 
-	const handleServerSelect = (id: number) => {
-		setSelectedId(id);
+	const handleServerSelect = (server: Server) => {
+		props.setServer(server);
 	};
 
 	useEffect(() => {
@@ -32,8 +32,8 @@ export default function ServerList() {
 
 	return (
 		<View style={{ marginHorizontal: 5 }}>
-			{serverList.map((server, index) => {
-				return <ServerIcon key={server.ip} onPressed={handleServerSelect} server={server} selected={selectedId == index} />;
+			{serverList.map((server) => {
+				return <ServerIcon key={server.id} onPressed={handleServerSelect} server={server} selected={props.selectedServer ? props.selectedServer.id == server.id : false} />;
 			})}
 			<AddServer />
 			<View style={{ flex: 1 }} />
@@ -78,10 +78,15 @@ function ServerIcon(props: ServerIconProps) {
 		animateBorderRadius(props.selected ? 5 : 20);
 	}, [props.selected]);
 
+	useEffect(() => {}, [props.server]);
+
 	return (
 		<Pressable
 			onPress={() => {
-				props.onPressed ? props.onPressed(props.server.id) : null;
+				props.onPressed ? props.onPressed(props.server) : null;
+			}}
+			onLongPress={() => {
+				updateServerData();
 			}}
 			onPointerEnter={() => {
 				setHover(true);
@@ -150,25 +155,7 @@ function AddServer() {
 			onPress={() => {
 				setModalVisible(true);
 			}}>
-			<Modal
-				transparent={true}
-				visible={modalVisible}
-				onRequestClose={() => {
-					setModalVisible(false);
-				}}
-				animationType={"fade"}>
-				<Pressable
-					style={{ flex: 1, width: "100%", justifyContent: "center", alignItems: "center", cursor: "auto", backgroundColor: "#000000EE" }}
-					onPress={() => {
-						setModalVisible(false);
-					}}>
-					<TouchableWithoutFeedback>
-						<View style={{ backgroundColor: Colors.dark.background, width: "90%", maxWidth: 500, height: 300, borderRadius: 4 }}>
-							<Text>Hello world!</Text>
-						</View>
-					</TouchableWithoutFeedback>
-				</Pressable>
-			</Modal>
+			<AddServerModal visible={modalVisible} toggle={setModalVisible} />
 			<View
 				style={{
 					width: 50,

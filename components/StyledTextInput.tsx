@@ -1,8 +1,8 @@
 import { View, Text, TextInput } from "react-native";
 
-export default function SettingsTextInput(props: { label?: string; onChangeText?: Function; onBlur?: Function; text?: string }) {
+export default function StyledTextInput(props: { label?: string; onChangeText?: Function; onBlur?: Function; text?: string; hidden?: boolean; width?: number; camelCase?: boolean }) {
 	return (
-		<View style={{ width: 200 }}>
+		<View style={{ width: props.width ?? 200 }}>
 			<Text
 				style={{
 					color: "#AAA",
@@ -24,8 +24,10 @@ export default function SettingsTextInput(props: { label?: string; onChangeText?
 				value={props.text ?? ""}
 				underlineColorAndroid={"transparent"}
 				onChangeText={(text) => {
+					if (props.camelCase) text = text.replaceAll(" ", "");
 					if (props.onChangeText) props.onChangeText(text);
 				}}
+				secureTextEntry={props.hidden}
 				onBlur={(event) => {
 					if (props.onBlur) props.onBlur(event);
 				}}

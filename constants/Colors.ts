@@ -20,6 +20,7 @@ export const Colors = {
 		background: "#060606",
 		tint: tintColorDark,
 		secondary: "#c14dcb",
+		onSecondary: "#fff",
 		icon: "#9BA1A6",
 		tabIconDefault: "#9BA1A6",
 		tabIconSelected: tintColorDark,
