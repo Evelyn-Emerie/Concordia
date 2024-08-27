@@ -54,7 +54,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 		if (superRef.current) {
 			//@ts-ignore
 			// ts is being retarded idfk
-			superRef.current.scrollToEnd({ animated: false });
+			superRef.current?.scrollToEnd({ animated: false });
 		}
 	}, [data]);
 
@@ -119,8 +119,9 @@ export default function ChatWindow(props: ChatWindowProps) {
 					}}
 					onContentSizeChange={() => {
 						setTimeout(() => {
-							//@ts-ignore
-							superRef.current.scrollToEnd({ animated: false });
+							if (superRef.current)
+								//@ts-ignore
+								superRef.current.scrollToEnd({ animated: false });
 						}, 100);
 					}}
 					onLayout={(e) => setHeight(e.nativeEvent.layout.height)}

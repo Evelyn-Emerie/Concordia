@@ -11,7 +11,7 @@ interface ChanneListProps {
 export default function ChannelList(props: ChanneListProps) {
 	const [channels, setChannels] = useState<Channel[]>([]);
 	const getChannels = async () => {
-		const request = await fetch(`${props.server.ip}/get-channels`);
+		const request = await fetch(`${props.server.ip}/channels/get`);
 		const json = (await request.json()) as Channel[];
 
 		setChannels(json);
@@ -35,7 +35,7 @@ export default function ChannelList(props: ChanneListProps) {
 					marginBottom: 10,
 					marginLeft: 5,
 				}}>
-				<Text style={{ color: "white", fontSize: 24 }}>A real server!</Text>
+				<Text style={{ color: "white", fontSize: 24 }}>{props.server.title}</Text>
 			</View>
 			{channels ? (
 				<FlatList

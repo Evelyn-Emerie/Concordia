@@ -46,42 +46,6 @@ const getUser = async () => {
 	return user;
 };
 
-export class Token {
-	static token: string | null;
-
-	static async getToken() {
-		if (!Token.token) {
-			Token.token = await getToken();
-		}
-		return Token.token;
-	}
-	static async clear() {
-		if (Token.token) {
-			Token.token = null;
-			AsyncStorage.removeItem("token");
-			expo.reloadAppAsync("Logging out...");
-		}
-	}
-}
-
-const storeToken = async (token: string) => {
-	try {
-		await AsyncStorage.setItem("token", token);
-	} catch (e) {
-		console.error(e);
-	}
-};
-
-const getToken = async () => {
-	try {
-		const token = await AsyncStorage.getItem("token");
-		return token ?? "";
-	} catch (e) {
-		console.error(e);
-	}
-	return ""; // Fixes typescript bullshit, do not REMOVE
-};
-
 export type TypeLocalSettings = {
 	servers: Server[];
 	LinkInNative: boolean;
@@ -99,10 +63,84 @@ class LocalSettings {
 
 	static async save(newData: typeof this.settings) {
 		await AsyncStorage.setItem("localSettings", JSON.stringify(newData));
+
+		await this.update();
 		return newData;
 	}
+
+	static async update() {
+		LocalSettings.settings = await getLocalSettings();
+		return LocalSettings.settings;
+	}
 }
-export { storeUser, storeToken, LocalSettings };
+
+const addServer = async (server: Server) => {
+	let localSettings = await LocalSettings.get();
+	localSettings.servers.push(server);
+
+	if (Platform.OS == "web") {
+		const PORT = require("../electron/LocalServer.json").port;
+		try {
+			await fetch(`http://127.0.0.1:${PORT}/settings/setServers`, {
+				method: "POST",
+				headers: {
+					"Accept": "*/*",
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					newServers: localSettings.servers,
+				}),
+			});
+		} catch (e) {
+			console.error(e);
+		}
+	}
+	return await LocalSettings.save(localSettings);
+};
+
+const updateServerData = async () => {
+	let settings = await LocalSettings.get();
+
+	// Use map to return an array of promises and await them with Promise.all
+	const updatedServers: Server[] = await Promise.all(
+		settings.servers.map(async (server) => {
+			const response = await fetch(server.ip);
+
+			const json = await response.json();
+			const result: Server = {
+				id: server.id,
+				accessToken: server.accessToken,
+				title: json.title,
+				ip: server.ip,
+				iconURL: json.iconURL,
+			};
+			return result;
+		}),
+	);
+
+	if (Platform.OS == "web") {
+		const PORT = require("../electron/LocalServer.json").port;
+		try {
+			await fetch(`http://127.0.0.1:${PORT}/settings/setServers`, {
+				method: "POST",
+				headers: {
+					"Accept": "*/*",
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					newServers: updatedServers,
+				}),
+			});
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	await LocalSettings.save(settings);
+	await LocalSettings.update();
+};
+
+export { storeUser, LocalSettings, addServer, updateServerData };
 
 const getLocalSettings = async () => {
 	// If running on web, get settings from electron's storage
@@ -115,7 +153,10 @@ const getLocalSettings = async () => {
 					"Content-Type": "application/json",
 				},
 			});
-			return await response.json();
+			const d = await response.json();
+			console.log(d);
+
+			return d;
 		} catch (e) {
 			console.error(e);
 		}

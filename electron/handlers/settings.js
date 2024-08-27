@@ -1,26 +1,22 @@
 const storage = require('electron-settings');
 
 let LinkInNative = false;
+let servers = [];
 
 const loadSettings = async () => {
     LinkInNative = await storage.get('LinkInNative') ?? false;
+    servers = await storage.get("servers") ?? [];
+
+    return getSettings();
 }
 
 const getSettings = () => {
     return settings = {
-        servers: [
-            {
-                id: 0,
-                title: 'A real server!',
-                ip: 'https://api.staryhub.net',
-                iconURL: 'https://i.pinimg.com/564x/79/c1/8f/79c18f71503dbfbddbbefe67f809f1c6.jpg'
-            }
-        ],
+        servers: servers,
         LinkInNative: LinkInNative
     }
 }
-/*
-*/
+
 const handleUpdates = (localserver) => {
     // get settings
     localserver.post('/settings', async (req, res) => {
@@ -29,15 +25,26 @@ const handleUpdates = (localserver) => {
     })
 
     // open links in new window?
-    localserver.post('/settings/setNewWindow', (req, res) => {
+    localserver.post('/settings/setNewWindow', async (req, res) => {
         const { newState } = req.body;
         if (typeof newState != 'boolean') return res.sendStatus(400);
 
         LinkInNative = newState;
 
-        storage.set('LinkInNative', newState);
+        await storage.set('LinkInNative', newState);
 
-        return res.sendStatus(200);
+        const response = await loadSettings();
+        return res.send(response);
+    })
+
+    // update local server list
+    localserver.post("/settings/setServers", async (req, res) => {
+        const { newServers } = req.body;
+
+        await storage.set('servers', newServers);
+
+        const response = await loadSettings();
+        return res.send(response);
     })
 }
 

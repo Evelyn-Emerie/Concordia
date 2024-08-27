@@ -1,6 +1,5 @@
 import { Server } from "@/components/ServerList";
 import { Message } from "../components/ChatWindow";
-import { Token } from "./storage";
 
 const ChatCache = new Map();
 
@@ -34,8 +33,6 @@ const clearCache = (id?: number) => {
 export { ChatCache, getMessages, clearCache, sendMessage };
 
 const sendMessage = async (setText: Function, text: string, activeChannel: number, server: Server) => {
-	const token = await Token.getToken();
-
 	try {
 		setText("");
 
@@ -44,7 +41,7 @@ const sendMessage = async (setText: Function, text: string, activeChannel: numbe
 			headers: {
 				"Accept": "application/json",
 				"Content-Type": "application/json",
-				"accessToken": token,
+				"accesstoken": server.accessToken,
 			},
 			body: JSON.stringify({
 				message: text,

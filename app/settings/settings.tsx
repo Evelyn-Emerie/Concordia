@@ -49,7 +49,7 @@ export default function SettingsScreen() {
 	useEffect(() => {
 		const load = async () => ((preLoadedSettings = await LocalSettings.get()), setLoaded(true));
 		load();
-	}, []);
+	}, [selectedIndex]);
 
 	return (
 		<GestureHandlerRootView>
