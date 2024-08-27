@@ -6,11 +6,8 @@
 		"start-server": "npx expo start",
 		"start-client": "electron ./electron/main.js",
 		"reset-project": "node ./scripts/reset-project.js",
-		"android": "expo start --android",
-		"ios": "expo start --ios",
-		"web": "expo start --web",
-		"test": "jest --watchAll",
-		"lint": "expo lint"
+		"compile-win": ".\\scripts\\compile.bat",
+		"compile-lin": "./scripts/compile.sh"
 	},
 	"jest": {
 		"preset": "jest-expo"

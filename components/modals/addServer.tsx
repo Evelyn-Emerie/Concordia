@@ -1,10 +1,16 @@
-import { Modal, Pressable, TouchableWithoutFeedback, View, Text } from "react-native";
+import { Modal, Pressable, TouchableWithoutFeedback, View, Text, Image } from "react-native";
 import StyledTextInput from "../StyledTextInput";
 import { Colors } from "@/constants/Colors";
 import StyledButton from "../inputs/StyledButton";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Server } from "../ServerList";
 import { addServer, LocalSettings } from "@/handlers/storage";
+
+type ServerInfo = {
+	title: string;
+	description: string;
+	iconURL: string;
+};
 
 export default function AddServerModal(props: { toggle: Function; visible: boolean }) {
 	const [ip, setIp] = useState("https://");
@@ -14,6 +20,23 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 	const [warning, setWarning] = useState("");
 	const [signUp, setSignUp] = useState(false);
 	const [signIn, setSigIn] = useState(false);
+	const [serverInfo, setServerInfo] = useState<ServerInfo>();
+
+	const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
+	const getServerInfo = async (adress: string) => {
+		try {
+			const response = await fetch(adress);
+			if (response.status != 200) return setError("Server not found!");
+			const json = await response.json();
+
+			setServerInfo(json);
+			setError("");
+		} catch (e) {
+			setError("Server not found");
+			setServerInfo(undefined);
+		}
+	};
 
 	const handleSignUp = () => {
 		if (error.length > 0) return;
@@ -42,9 +65,9 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 				if (response.status != 200) return setError(json.message);
 
 				const localSettings = await LocalSettings.get();
-				const lastId = localSettings.servers[localSettings.servers.length - 1].id;
+				const lastId = localSettings.servers.length > 0 ? localSettings.servers[localSettings.servers.length - 1].id : 0;
 				const server: Server = {
-					id: lastId + 1,
+					id: lastId + 1 ?? 0,
 					accessToken: json.token,
 					title: json.server.title,
 					ip: ip,
@@ -63,6 +86,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 		}
 		setSignUp(false);
 	};
+
 	const handleSignIn = () => {
 		if (error.length > 0) return;
 
@@ -90,9 +114,9 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 				if (response.status == 403) return setError(json.message);
 
 				const localSettings = await LocalSettings.get();
-				const lastId = localSettings.servers[localSettings.servers.length - 1].id;
+				const lastId = localSettings.servers.length > 0 ? localSettings.servers[localSettings.servers.length - 1].id : 0;
 				const server: Server = {
-					id: lastId + 1,
+					id: lastId + 1 ?? 0,
 					accessToken: json.token,
 					title: json.server.title,
 					ip: ip,
@@ -123,12 +147,19 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 			}}
 			animationType={"fade"}>
 			<Pressable
-				style={{ flex: 1, width: "100%", justifyContent: "center", alignItems: "center", cursor: "auto", backgroundColor: "#000000EE" }}
+				style={{ flex: 1, width: "100%", justifyContent: "center", alignItems: "center", cursor: "auto", backgroundColor: "#000000AA" }}
 				onPress={() => {
 					props.toggle(false);
 				}}>
 				<TouchableWithoutFeedback>
-					<View style={{ backgroundColor: Colors.dark.background, width: "90%", maxWidth: 400, height: 300, borderRadius: 4, justifyContent: "center", alignItems: "center" }}>
+					<View style={{ backgroundColor: Colors.dark.background, width: "90%", maxWidth: 400, minHeight: 300, borderRadius: 4, justifyContent: "center", alignItems: "center", paddingVertical: 10 }}>
+						{serverInfo ? (
+							<View style={{ justifyContent: "center", alignItems: "center" }}>
+								<Image source={{ uri: serverInfo?.iconURL, width: 75, height: 75 }} />
+								<Text style={{ color: Colors.dark.text, fontSize: 40 }}>{serverInfo.title}</Text>
+								<Text style={{ color: Colors.dark.text }}>{serverInfo.description}</Text>
+							</View>
+						) : null}
 						<Text style={{ color: "red" }}>{error}</Text>
 						<Text style={{ color: "orange" }}>{warning}</Text>
 						<StyledTextInput
@@ -138,6 +169,17 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 								if (!t.startsWith("https://")) setWarning("⚠️ Unsafe adress!");
 								else setWarning("");
 								setIp(t);
+
+								// Clear any previous debounce timeout
+								if (debounceTimeout.current) {
+									clearTimeout(debounceTimeout.current);
+								}
+
+								if (t.length > 8)
+									// Set a new debounce timeout to fetch server info
+									debounceTimeout.current = setTimeout(() => {
+										getServerInfo(t);
+									}, 500); // .5s delay
 							}}
 							width={300}
 						/>

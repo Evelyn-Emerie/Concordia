@@ -27,6 +27,8 @@ const getSocket = async (setNewMessage: Function, activeChannel: Channel, server
 
 	socket.off("update");
 	socket.on("update", async (data: Message) => {
+		console.log(data);
+
 		if (!newMessage || newMessage.id != data.id) {
 			const oldMessages = await ChatCache.get(data.channel);
 			if (oldMessages) ChatCache.set(data.channel, [data, ...oldMessages]);
