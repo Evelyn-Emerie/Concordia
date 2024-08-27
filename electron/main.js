@@ -39,9 +39,9 @@ function createWindow() {
     win.menuBarVisible = false;
 
     // Load the Express server URL
-    // win.loadURL(`http://localhost:${PORT}`);
-
-    win.loadURL(`http://localhost:8081`); //! DEV MODE
+    win.loadURL(`http://127.0.0.1:${PORT}`);
+    console.log(`http://127.0.0.1:${PORT}`)
+    // win.loadURL(`http://127.0.0.1:8081`); //! DEV MODE
 
     win.once('ready-to-show', () => {
         win.show();
