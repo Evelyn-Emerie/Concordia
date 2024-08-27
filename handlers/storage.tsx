@@ -50,6 +50,7 @@ export type TypeLocalSettings = {
 	servers: Server[];
 	LinkInNative: boolean;
 };
+
 class LocalSettings {
 	static settings: TypeLocalSettings;
 

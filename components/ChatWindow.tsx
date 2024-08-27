@@ -18,6 +18,7 @@ export type Message = {
 
 type User = {
 	id: string;
+	nickname?: string;
 	username: string;
 	profilePicture?: string;
 };
@@ -48,6 +49,8 @@ export default function ChatWindow(props: ChatWindowProps) {
 	useEffect(() => {
 		const message = props.newMessage as Message;
 		setData((prevData) => [message, ...prevData]);
+		console.log("NEW MESSAGE");
+		console.log(props.newMessage);
 	}, [props.newMessage]);
 
 	useEffect(() => {
@@ -97,21 +100,17 @@ export default function ChatWindow(props: ChatWindowProps) {
 						marginHorizontal: "auto",
 					}}
 					data={[...data].reverse()}
-					// keyExtractor={({ id }) => id}
 					ListHeaderComponent={<Text style={{ color: "white", fontSize: 30, fontWeight: "600", marginTop: height - 60 }}>Start of the channel {props.activeChannel.title}</Text>}
 					renderItem={({ item, index }) => {
-						return (
-							<MessageCard
-								message={item}
-								isLastInGroup={
-									index == 0 || //first message has always header
-									// Same user && same day?
-									data[index].user.id != data[index - 1].user.id ||
-									new Date(data[index].id).toLocaleDateString() !== new Date(data[index - 1].id).toLocaleDateString()
-								}
-								server={props.server as Server}
-							/>
-						);
+						let isLastInGroup = true;
+						if (index > 0) {
+							const previousItem = data[data.length - 1 - index]; // Adjust index for reversed array
+							const currentItem = data[data.length - index];
+
+							const sameDay = new Date(data[data.length - index].id).toLocaleDateString() == new Date(data[data.length - 1 - index].id).toLocaleDateString(); // same day?
+							isLastInGroup = currentItem.user.id != previousItem.user.id || !sameDay;
+						}
+						return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} />;
 					}}
 					onStartReached={() => {
 						console.log("end!");
@@ -158,6 +157,7 @@ interface MessageCardProps {
 	message: Message;
 	isLastInGroup: boolean;
 	server: Server;
+	index?: number;
 }
 
 const MessageCard = (props: MessageCardProps) => {
@@ -170,6 +170,7 @@ const MessageCard = (props: MessageCardProps) => {
 	};
 
 	const [hover, setHover] = useState(false);
+	console.log(props.message);
 
 	return (
 		<View
@@ -197,7 +198,7 @@ const MessageCard = (props: MessageCardProps) => {
 						}}>
 						{props.message.user.profilePicture ? <Image source={{ uri: `${props.server.ip}/users/pfp/${props.message.user.profilePicture}`, width: 30, height: 30 }} /> : null}
 					</View>
-					<Text style={{ color: "#fff", fontWeight: "500", marginBottom: 5 }}>{props.message.user.username}</Text>
+					<Text style={{ color: "#fff", fontWeight: "500", marginBottom: 5 }}>{props.message.user.nickname ?? props.message.user.username}</Text>
 					<Text style={{ color: "#ddd", fontSize: 10, marginBottom: 5 }}> {timestamp}</Text>
 				</View>
 			) : null}

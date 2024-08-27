@@ -62,6 +62,7 @@ interface ServerIconProps {
 
 function ServerIcon(props: ServerIconProps) {
 	const [hover, setHover] = useState(false);
+	// console.log(props.selected);
 
 	const borderRadius = useRef(new Animated.Value(props.selected ? 5 : 20)).current;
 

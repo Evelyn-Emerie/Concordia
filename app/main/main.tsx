@@ -37,7 +37,7 @@ export default function MainWindow() {
 	return (
 		<GestureDetector gesture={fling}>
 			<DrawerLayout ref={drawer} drawerType="front" drawerWidth={235} drawerBackgroundColor="#00000088" drawerPosition="left" renderNavigationView={() => <SideBar selectedChannel={selectedChannel} setSelectedChannel={setSelectedChannel} server={selectedServer} setSelectedServer={setSelectedServer} />}>
-				<ChatWindow activeChannel={selectedChannel} server={selectedServer} />
+				<ChatWindow activeChannel={selectedChannel} server={selectedServer} newMessage={newMessage} />
 			</DrawerLayout>
 		</GestureDetector>
 	);
