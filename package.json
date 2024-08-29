@@ -16,7 +16,7 @@
     "@electron/packager": "^18.3.4",
     "@expo/metro-runtime": "~3.2.1",
     "@expo/vector-icons": "^14.0.2",
-    "@react-native-async-storage/async-storage": "^1.23.1",
+    "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/native": "^6.0.2",
     "expo": "~51.0.26",
     "expo-clipboard": "~6.0.3",
