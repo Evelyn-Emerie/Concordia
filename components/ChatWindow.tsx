@@ -1,4 +1,4 @@
-import { Animated, Image, Linking, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Dimensions, Image, Linking, Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import AutoExpandingTextInput from "./AutoTextInput";
 import { getMessages, sendMessage } from "../handlers/chat";
@@ -30,10 +30,10 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow(props: ChatWindowProps) {
+	const { height, width } = useWindowDimensions();
 	const [isLoading, setLoading] = useState(true);
 	const [data, setData] = useState<Message[]>([]);
 	const [text, setText] = useState("");
-	const [height, setHeight] = useState(0);
 	const superRef = useRef(null);
 
 	const getData = async () => {
@@ -49,8 +49,6 @@ export default function ChatWindow(props: ChatWindowProps) {
 	useEffect(() => {
 		const message = props.newMessage as Message;
 		setData((prevData) => [message, ...prevData]);
-		console.log("NEW MESSAGE");
-		console.log(props.newMessage);
 	}, [props.newMessage]);
 
 	useEffect(() => {
@@ -90,42 +88,46 @@ export default function ChatWindow(props: ChatWindowProps) {
 				}}>
 				<Text style={{ color: "white", fontSize: 18 }}>{props.activeChannel.title}</Text>
 			</View>
+			<View style={{ flex: 1 }} />
 			{isLoading ? (
 				<Loading />
 			) : data.length > 0 ? (
-				<FlatList
-					ref={superRef}
-					style={{
-						width: "98%",
-						marginHorizontal: "auto",
-					}}
-					data={[...data].reverse()}
-					ListHeaderComponent={<Text style={{ color: "white", fontSize: 30, fontWeight: "600", marginTop: height - 60 }}>Start of the channel {props.activeChannel.title}</Text>}
-					renderItem={({ item, index }) => {
-						let isLastInGroup = true;
-						if (index > 0) {
-							const previousItem = data[data.length - 1 - index]; // Adjust index for reversed array
-							const currentItem = data[data.length - index];
+				<View style={{ maxHeight: height - 120 }}>
+					<FlatList
+						ref={superRef}
+						style={{
+							width: "98%",
+							marginHorizontal: "auto",
+						}}
+						data={[...data].reverse()}
+						// ListHeaderComponent={<Text style={{ color: "white", fontSize: 30, fontWeight: "600", marginTop: height - 60 }}>Start of the channel {props.activeChannel.title}</Text>}
+						renderItem={({ item, index }) => {
+							let isLastInGroup = true;
+							if (index > 0) {
+								const previousItem = data[data.length - 1 - index]; // Adjust index for reversed array
+								const currentItem = data[data.length - index];
 
-							const sameDay = new Date(data[data.length - index].id).toLocaleDateString() == new Date(data[data.length - 1 - index].id).toLocaleDateString(); // same day?
-							isLastInGroup = currentItem.user.id != previousItem.user.id || !sameDay;
-						}
-						return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} />;
-					}}
-					onStartReached={() => {
-						console.log("end!");
-						// TODO implement loading more messages when reaching end
-					}}
-					onContentSizeChange={() => {
-						setTimeout(() => {
-							if (superRef.current)
-								//@ts-ignore
-								superRef.current.scrollToEnd({ animated: false });
-						}, 100);
-					}}
-					onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
-					showsVerticalScrollIndicator={false}
-				/>
+								const sameDay = new Date(data[data.length - index].id).toLocaleDateString() == new Date(data[data.length - 1 - index].id).toLocaleDateString(); // same day?
+								isLastInGroup = currentItem.user.id != previousItem.user.id || !sameDay;
+							}
+							return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} />;
+						}}
+						refreshing={true}
+						onStartReached={() => {
+							console.log("end!");
+							// TODO implement loading more messages when reaching end
+						}}
+						getItemLayout={(data, index) => {
+							return { length: 100, offset: 5000 * index, index }; // ? Any better method to make it scroll to the bottom at start without (too) much visual stuff?
+						}}
+						initialScrollIndex={data.length > 0 ? data.length - 1 : 0}
+						initialNumToRender={40} // Render all 40 messages given by server
+						onScrollToIndexFailed={(e) => {
+							console.error(e);
+						}}
+						showsVerticalScrollIndicator={false}
+					/>
+				</View>
 			) : (
 				<View
 					style={{
@@ -138,7 +140,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 			)}
 			<View style={{ height: 10 }} />
 			<View style={{ width: "95%", marginHorizontal: "auto", marginBottom: 10 }}>
-				<AutoExpandingTextInput text={text} setText={setText} onSubmit={() => sendMessage(setText, text, props.activeChannel!.id, props.server as Server)} />
+				<AutoExpandingTextInput charLimit={300} text={text} setText={setText} onSubmit={() => sendMessage(setText, text, props.activeChannel!.id, props.server as Server)} />
 			</View>
 		</View>
 	);
@@ -170,7 +172,6 @@ const MessageCard = (props: MessageCardProps) => {
 	};
 
 	const [hover, setHover] = useState(false);
-	console.log(props.message);
 
 	return (
 		<View
