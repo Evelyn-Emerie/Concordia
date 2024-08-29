@@ -1,12 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../constants/Colors";
 import { useState } from "react";
-import { View, TextInput, Pressable, Platform } from "react-native";
+import { View, TextInput, Pressable, Platform, Text } from "react-native";
 
 interface AutoTextInputProps {
 	text: string;
 	setText: Function;
 	onSubmit: Function;
+	charLimit?: number;
 }
 
 export default function AutoExpandingTextInput(props: AutoTextInputProps) {
@@ -20,7 +21,7 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 			style={{
 				backgroundColor: "#424242",
 				paddingHorizontal: 10,
-				paddingVertical: 5,
+				paddingVertical: 2,
 				flexDirection: "row",
 				alignItems: "center",
 				borderRadius: 10,
@@ -59,10 +60,15 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 					if (props.text.length > 1) setInputHeight(Math.min(Math.round(e.nativeEvent.contentSize.height / 20), 10) * 20);
 				}}
 				onChangeText={(text) => {
+					if (props.charLimit && text.length > props.charLimit) text = text.slice(0, 300); // Prevent messages over 300 characters long
+					if (props.text.length < 1 && text.includes("\n")) return; // Prevent empty new lines without starting character(s)
+
 					setIsSendable(text.length > 0);
+
 					const textLines = text.split("\n").length; // Calculate amount of lines
 
 					if (text.length < 1) setInputHeight(textLines * 20);
+
 					props.setText(text); //Updated the text to reflect changes
 				}}
 				multiline={true}
@@ -74,7 +80,10 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 					setInputHeight(16);
 					setIsSendable(false);
 				}}>
-				<Ionicons name="send" color={isSendable ? Colors.dark.secondary : "#262626"} size={20} />
+				<View style={{ justifyContent: "center", alignItems: "center", width: 30 }}>
+					<Ionicons name="send" color={isSendable ? Colors.dark.secondary : "#262626"} size={20} />
+					<Text style={{ color: "#262626", fontSize: 12, fontWeight: "700" }}>{props.text.length}/300</Text>
+				</View>
 			</Pressable>
 		</View>
 	);
