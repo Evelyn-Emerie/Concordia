@@ -2,7 +2,7 @@ import { Button, View } from "react-native";
 import SettingsTextInput from "../../components/StyledTextInput";
 import ServerPageLabel from "../../components/ServerPageLabel";
 import { useEffect, useState } from "react";
-import { Token, User, UserType } from "../../handlers/storage";
+import { User, UserType } from "../../handlers/storage";
 import Loading from "../../components/loading";
 
 async function loadData(setUser: Function) {
@@ -13,6 +13,7 @@ async function loadData(setUser: Function) {
 export default function AccountSettingsPage() {
 	const [user, setUser] = useState<UserType>();
 	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
 
 	useEffect(() => {
 		loadData(setUser);
@@ -21,6 +22,7 @@ export default function AccountSettingsPage() {
 	useEffect(() => {
 		const l = async () => {
 			setUsername(user?.username ?? "");
+			setPassword(user?.password ?? "");
 		};
 		if (user) l();
 	}, [user]);
@@ -42,13 +44,20 @@ export default function AccountSettingsPage() {
 						onChangeText={(t: string) => {
 							setUsername(t);
 						}}
-						onBlur={() => {}}
-					/>
-					<Button
-						title="Log out"
-						onPress={() => {
-							Token.clear();
+						onBlur={() => {
+							User.setUsername(username);
 						}}
+					/>
+					<SettingsTextInput
+						label="Password"
+						text={password}
+						onChangeText={(t: string) => {
+							setPassword(t);
+						}}
+						onBlur={() => {
+							User.setPassword(password);
+						}}
+						hidden
 					/>
 				</View>
 			)}

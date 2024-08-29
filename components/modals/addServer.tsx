@@ -4,7 +4,7 @@ import { Colors } from "@/constants/Colors";
 import StyledButton from "../inputs/StyledButton";
 import { useRef, useState } from "react";
 import { Server } from "../ServerList";
-import { addServer, LocalSettings } from "@/handlers/storage";
+import { addServer, LocalSettings, User } from "@/handlers/storage";
 
 type ServerInfo = {
 	title: string;
@@ -184,7 +184,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 							width={300}
 						/>
 						<StyledTextInput
-							label="username"
+							label="Username"
 							text={username}
 							onChangeText={(t: string) => {
 								setUsername(t);
@@ -194,7 +194,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 							camelCase
 						/>
 						<StyledTextInput
-							label="password"
+							label="Password"
 							text={password}
 							hidden
 							onChangeText={(t: string) => {
@@ -204,6 +204,14 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 							width={300}
 							camelCase
 						/>
+						<Pressable
+							onPress={async () => {
+								const user = await User.getUserObject();
+								setUsername(user.username);
+								setPassword(user.password);
+							}}>
+							<Text style={{ color: Colors.dark.secondary, textDecorationLine: "underline" }}>Autofill local user</Text>
+						</Pressable>
 						<View style={{ flexDirection: "row", marginTop: 20 }}>
 							<StyledButton label="Sign in" onPress={handleSignIn} loading={signIn} />
 							<View style={{ width: 20 }} />
