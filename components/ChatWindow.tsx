@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Image, Linking, Platform, Pressable, Text, useWindowDimensions, View, FlatList } from "react-native";
+import { Linking, Platform, Pressable, Text, useWindowDimensions, View, FlatList, Image } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import AutoExpandingTextInput from "./AutoTextInput";
 import Loading from "../components/loading";
@@ -8,6 +8,7 @@ import { Colors } from "../constants/Colors";
 import { Server } from "./ServerList";
 import { Channel } from "./ChannelList";
 import { Secrets } from "@/constants/Secrets";
+import { Image as ExpoImage } from "expo-image";
 
 export type Message = {
 	id: string;
@@ -195,7 +196,7 @@ const ProcessedMessage = ({ text }: ProcessedMessageProps) => {
 	}, [text]);
 
 	if (gifUrl) {
-		return <Image source={{ uri: gifUrl }} style={{ width: 200, height: 200, marginTop: 2, marginLeft: 2, borderRadius: 5 }} />;
+		return <ExpoImage source={{ uri: gifUrl }} style={{ width: 200, height: 200, marginTop: 2, marginLeft: 2, borderRadius: 5 }} />;
 	}
 
 	if (error) {
