@@ -13,7 +13,7 @@ let preLoadedSettings: TypeLocalSettings;
 
 const settings = [
 	{
-		title: "User Settings",
+		title: "Settings",
 		settings: [
 			{
 				index: 0,
@@ -27,7 +27,7 @@ const settings = [
 if (Platform.OS == "web") {
 	settings[0].settings.push({
 		index: 1,
-		title: "Super Test",
+		title: "Desktop only",
 		view: (
 			<DesktopSettings
 				key={1}
