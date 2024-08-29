@@ -1,4 +1,5 @@
-const { app, BrowserWindow } = require('electron');
+const { app, session, BrowserWindow } = require('electron');
+const fs = require('fs');
 const express = require('express');
 const path = require('node:path');
 const cors = require('cors');
@@ -67,7 +68,7 @@ function createWindow() {
 
 
 // Initialize the app
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
     createWindow();
 
     app.on('activate', () => {

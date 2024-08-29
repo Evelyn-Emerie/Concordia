@@ -3,8 +3,8 @@ import { Server } from "../components/ServerList";
 import { Platform } from "react-native";
 
 export type UserType = {
-	id: string;
 	username: string;
+	password: string;
 };
 
 export class User {
@@ -18,31 +18,21 @@ export class User {
 		return User.user;
 	}
 
-	static updateUserID(id: string) {
-		User.user.id = id;
+	static async setPassword(password: string) {
+		User.user.password = password;
+		await AsyncStorage.setItem("user", JSON.stringify(User.user));
+		return User.user;
+	}
+
+	static async setUsername(username: string) {
+		User.user.username = username;
+		await AsyncStorage.setItem("user", JSON.stringify(User.user));
+		return User.user;
 	}
 }
 
-const storeUser = async (user: UserType) => {
-	try {
-		await AsyncStorage.setItem("user", JSON.stringify(user));
-		User.updateUserID(user.id);
-	} catch (e) {
-		console.error(e);
-	}
-};
-
 const getUser = async () => {
-	const user: UserType = JSON.parse((await AsyncStorage.getItem("user")) ?? "");
-	// const response = await fetch("https://api.staryhub.net/users/:id", {
-	// 	headers: {
-	// 		"Accept": "*/*",
-	// 		"Content-Type": "application/json",
-	// 		"accesstoken": await Token.getToken(),
-	// 	},
-	// });
-	// const user = await response.json();
-
+	const user: UserType = JSON.parse((await AsyncStorage.getItem("user")) ?? "{}");
 	return user;
 };
 
@@ -141,7 +131,7 @@ const updateServerData = async () => {
 	await LocalSettings.update();
 };
 
-export { storeUser, LocalSettings, addServer, updateServerData };
+export { LocalSettings, addServer, updateServerData };
 
 const getLocalSettings = async () => {
 	// If running on web, get settings from electron's storage
