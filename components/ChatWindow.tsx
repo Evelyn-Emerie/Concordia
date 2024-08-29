@@ -1,13 +1,13 @@
-import { Animated, Dimensions, Image, Linking, Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import AutoExpandingTextInput from "./AutoTextInput";
-import { getMessages, sendMessage } from "../handlers/chat";
-import { FlatList } from "react-native-gesture-handler";
-import { Colors } from "../constants/Colors";
+import { Image, Linking, Platform, Pressable, Text, useWindowDimensions, View, FlatList } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import Loading from "./loading";
+import AutoExpandingTextInput from "./AutoTextInput";
+import Loading from "../components/loading";
+import { getMessages, sendMessage } from "../handlers/chat";
+import { Colors } from "../constants/Colors";
 import { Server } from "./ServerList";
 import { Channel } from "./ChannelList";
+import { Secrets } from "@/constants/Secrets";
 
 export type Message = {
 	id: string;
@@ -30,14 +30,14 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow(props: ChatWindowProps) {
-	const { height, width } = useWindowDimensions();
+	const { height } = useWindowDimensions();
 	const [isLoading, setLoading] = useState(true);
 	const [data, setData] = useState<Message[]>([]);
 	const [text, setText] = useState("");
 	const superRef = useRef(null);
 
 	const getData = async () => {
-		if (props.activeChannel) setData(await getMessages(props.activeChannel!.id, props.server as Server));
+		if (props.activeChannel) setData(await getMessages(props.activeChannel.id, props.server as Server));
 		setLoading(false);
 	};
 
@@ -54,7 +54,6 @@ export default function ChatWindow(props: ChatWindowProps) {
 	useEffect(() => {
 		if (superRef.current) {
 			//@ts-ignore
-			// ts is being retarded idfk
 			superRef.current?.scrollToEnd({ animated: false });
 		}
 	}, [data]);
@@ -74,18 +73,8 @@ export default function ChatWindow(props: ChatWindowProps) {
 		);
 
 	return (
-		<View
-			style={{
-				flex: 1,
-				width: "100%",
-			}}>
-			<View
-				style={{
-					height: 50,
-					backgroundColor: Colors.dark.background,
-					justifyContent: "center",
-					paddingHorizontal: 20,
-				}}>
+		<View style={{ flex: 1, width: "100%" }}>
+			<View style={{ height: 50, backgroundColor: Colors.dark.background, justifyContent: "center", paddingHorizontal: 20 }}>
 				<Text style={{ color: "white", fontSize: 18 }}>{props.activeChannel.title}</Text>
 			</View>
 			<View style={{ flex: 1 }} />
@@ -95,12 +84,8 @@ export default function ChatWindow(props: ChatWindowProps) {
 				<View style={{ maxHeight: height - 120 }}>
 					<FlatList
 						ref={superRef}
-						style={{
-							width: "98%",
-							marginHorizontal: "auto",
-						}}
+						style={{ width: "98%", marginHorizontal: "auto" }}
 						data={[...data].reverse()}
-						// ListHeaderComponent={<Text style={{ color: "white", fontSize: 30, fontWeight: "600", marginTop: height - 60 }}>Start of the channel {props.activeChannel.title}</Text>}
 						renderItem={({ item, index }) => {
 							let isLastInGroup = true;
 							if (index > 0) {
@@ -118,7 +103,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 							// TODO implement loading more messages when reaching end
 						}}
 						getItemLayout={(data, index) => {
-							return { length: 100, offset: 5000 * index, index }; // ? Any better method to make it scroll to the bottom at start without (too) much visual stuff?
+							return { length: 100, offset: 5000 * index, index };
 						}}
 						initialScrollIndex={data.length > 0 ? data.length - 1 : 0}
 						initialNumToRender={40} // Render all 40 messages given by server
@@ -129,12 +114,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 					/>
 				</View>
 			) : (
-				<View
-					style={{
-						flex: 1,
-						justifyContent: "center",
-						alignItems: "center",
-					}}>
+				<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
 					<Text style={{ color: "#FFFFFF44", fontSize: 20 }}>There's no messages here yet!</Text>
 				</View>
 			)}
@@ -163,99 +143,81 @@ interface MessageCardProps {
 }
 
 const MessageCard = (props: MessageCardProps) => {
-	if (!props.message) return;
+	if (!props.message) return null;
 
 	const timestamp = getTime(parseInt(props.message.id));
-
-	const copyToClipboard = async (text: string) => {
-		await Clipboard.setStringAsync(text);
-	};
-
+	const copyToClipboard = async (text: string) => await Clipboard.setStringAsync(text);
 	const [hover, setHover] = useState(false);
 
 	return (
-		<View
-			style={{
-				minHeight: 20,
-				width: "100%",
-				paddingHorizontal: 10,
-				paddingTop: props.isLastInGroup ? 2 : 0,
-				marginTop: props.isLastInGroup ? 10 : 0,
-			}}>
-			{props.isLastInGroup ? (
-				<View
-					style={{
-						flexDirection: "row",
-						alignItems: "flex-end",
-						marginBottom: 5,
-					}}>
-					<View
-						style={{
-							width: 30,
-							height: 30,
-							borderRadius: 20,
-							marginRight: 5,
-							overflow: "hidden",
-						}}>
-						{props.message.user.profilePicture ? <Image source={{ uri: `${props.server.ip}/users/pfp/${props.message.user.profilePicture}`, width: 30, height: 30 }} /> : null}
-					</View>
+		<View style={{ minHeight: 20, width: "100%", paddingHorizontal: 10, paddingTop: props.isLastInGroup ? 2 : 0, marginTop: props.isLastInGroup ? 10 : 0 }}>
+			{props.isLastInGroup && (
+				<View style={{ flexDirection: "row", alignItems: "flex-end", marginBottom: 5 }}>
+					<View style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5, overflow: "hidden" }}>{props.message.user.profilePicture ? <Image source={{ uri: `${props.server.ip}/users/pfp/${props.message.user.profilePicture}`, width: 30, height: 30 }} /> : null}</View>
 					<Text style={{ color: "#fff", fontWeight: "500", marginBottom: 5 }}>{props.message.user.nickname ?? props.message.user.username}</Text>
 					<Text style={{ color: "#ddd", fontSize: 10, marginBottom: 5 }}> {timestamp}</Text>
 				</View>
-			) : null}
-			<Pressable
-				style={{ cursor: "auto" }}
-				onLongPress={() => {
-					if (Platform.OS != "web") copyToClipboard(props.message.text);
-				}}
-				onHoverIn={() => {
-					setHover(true);
-				}}
-				onHoverOut={() => {
-					setHover(false);
-				}}>
+			)}
+			<Pressable style={{ cursor: "auto" }} onLongPress={() => Platform.OS != "web" && copyToClipboard(props.message.text)} onHoverIn={() => setHover(true)} onHoverOut={() => setHover(false)}>
 				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text" }}>
-					{processMessage(props.message.text)}
-					{hover ? <Text style={{ color: "white", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text> : null}
+					<ProcessedMessage text={props.message.text} />
+					{hover && <Text style={{ color: "white", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text>}
 				</Text>
 			</Pressable>
 		</View>
 	);
 };
 
-const processMessage = (text: string) => {
+interface ProcessedMessageProps {
+	text: string;
+}
+
+const ProcessedMessage = ({ text }: ProcessedMessageProps) => {
 	const URL_REGEX = /(http|https|HTTP|HTTPS):\/\/[\w_-]\S*/g;
+	const [gifUrl, setGifUrl] = useState<string | null>(null);
+	const [error, setError] = useState<boolean>(false);
+
+	useEffect(() => {
+		const fetchGif = async (id: string) => {
+			try {
+				const response = await fetch(`https://tenor.googleapis.com/v2/posts?key=${Secrets.Tenor}&media_filter=gif&ids=${id}`);
+				const json = await response.json();
+				setGifUrl(json.results[0].media_formats.gif.url);
+			} catch (e) {
+				setError(true);
+			}
+		};
+
+		if (text.includes("[gif](")) {
+			const id = text.split("(")[1].split(")")[0];
+			fetchGif(id);
+		}
+	}, [text]);
+
+	if (gifUrl) {
+		return <Image source={{ uri: gifUrl }} style={{ width: 200, height: 200, marginTop: 2, marginLeft: 2, borderRadius: 5 }} />;
+	}
+
+	if (error) {
+		return <Text style={{ color: "red" }}>Failed to load gif</Text>;
+	}
 
 	const URLs = text.match(URL_REGEX);
 	const parts = text.split(" ");
+
 	if (!URLs) return <Text>{text}</Text>;
 
-	let fancyText: React.JSX.Element[] = [];
-
-	// This is a mess...
-	parts.forEach((part, index) => {
-		if (URLs?.includes(part)) {
-			part += " ";
-			fancyText.push(
-				<Pressable
-					key={`link-${index}`}
-					onPress={() => {
-						Linking.openURL(part.toString());
-					}}>
-					<Text
-						style={{
-							color: Colors.dark.secondary,
-							textDecorationLine: "underline",
-						}}>
-						{part}
-					</Text>
-				</Pressable>,
-			);
-		} else {
-			part += " ";
-			fancyText.push(<Text key={`text-${index}`}>{part}</Text>);
-		}
-	});
-
-	return <Text>{fancyText}</Text>;
+	return (
+		<Text>
+			{parts.map((part, index) =>
+				URLs.includes(part) ? (
+					<Pressable key={`link-${index}`} onPress={() => Linking.openURL(part)}>
+						<Text style={{ color: Colors.dark.secondary, textDecorationLine: "underline" }}>{part + " "}</Text>
+					</Pressable>
+				) : (
+					<Text key={`text-${index}`}>{part + " "}</Text>
+				),
+			)}
+		</Text>
+	);
 };
