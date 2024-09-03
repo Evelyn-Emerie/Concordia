@@ -7,7 +7,6 @@ import { getMessages, sendMessage } from "../handlers/chat";
 import { Colors } from "../constants/Colors";
 import { Server } from "./ServerList";
 import { Channel } from "./ChannelList";
-import { Secrets } from "@/constants/Secrets";
 import { Image as ExpoImage } from "expo-image";
 
 export type Message = {

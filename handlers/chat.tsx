@@ -1,4 +1,4 @@
-import { Server } from "@/components/ServerList";
+import { Server } from "../components/ServerList";
 import { Message } from "../components/ChatWindow";
 
 const ChatCache = new Map();

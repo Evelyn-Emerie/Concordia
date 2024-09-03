@@ -1,10 +1,10 @@
 import { Modal, Pressable, TouchableWithoutFeedback, View, Text, Image } from "react-native";
 import StyledTextInput from "../StyledTextInput";
-import { Colors } from "@/constants/Colors";
+import { Colors } from "../../constants/Colors";
 import StyledButton from "../inputs/StyledButton";
 import { useRef, useState } from "react";
 import { Server } from "../ServerList";
-import { addServer, LocalSettings, User } from "@/handlers/storage";
+import { addServer, LocalSettings, User } from "../../handlers/storage";
 
 type ServerInfo = {
 	title: string;

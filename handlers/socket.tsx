@@ -1,8 +1,8 @@
 import { io } from "socket.io-client";
 import { Message } from "../components/ChatWindow";
 import { ChatCache } from "./chat";
-import { Server } from "@/components/ServerList";
-import { Channel } from "@/components/ChannelList";
+import { Server } from "../components/ServerList";
+import { Channel } from "../components/ChannelList";
 
 class Socket {
 	static instance: any = null;

@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import { Colors } from "../../constants/Colors";
 import { View, Text, Pressable } from "react-native";
 import Loading from "../loading";
 

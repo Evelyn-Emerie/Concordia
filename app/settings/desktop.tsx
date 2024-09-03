@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { View, Text } from "react-native";
 import SettingsSwitchButton from "../../components/StyledSwitchButton";
-import { LocalSettings } from "@/handlers/storage";
-import ServerPageLabel from "@/components/ServerPageLabel";
+import { LocalSettings } from "../../handlers/storage";
+import ServerPageLabel from "../../components/ServerPageLabel";
 
 export default function DesktopSettings(props: { preload: Function }) {
 	const [state, setState] = useState(props.preload().LinkInNative ?? false);

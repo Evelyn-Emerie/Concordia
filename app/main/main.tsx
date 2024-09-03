@@ -1,9 +1,9 @@
-import { Channel } from "@/components/ChannelList";
-import ChatWindow, { Message } from "@/components/ChatWindow";
-import { Server } from "@/components/ServerList";
-import SideBar from "@/components/SideBar";
-import { Colors } from "@/constants/Colors";
-import getSocket from "@/handlers/socket";
+import { Channel } from "../../components/ChannelList";
+import ChatWindow, { Message } from "../../components/ChatWindow";
+import { Server } from "../../components/ServerList";
+import SideBar from "../../components/SideBar";
+import { Colors } from "../../constants/Colors";
+import getSocket from "../../handlers/socket";
 import { useState, useRef, useEffect } from "react";
 import { Keyboard, Platform, View } from "react-native";
 import { Directions, DrawerLayout, Gesture, GestureDetector } from "react-native-gesture-handler";
