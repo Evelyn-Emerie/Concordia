@@ -160,7 +160,7 @@ const MessageCard = (props: MessageCardProps) => {
 			)}
 			<Pressable style={{ cursor: "auto" }} onLongPress={() => Platform.OS != "web" && copyToClipboard(props.message.text)} onHoverIn={() => setHover(true)} onHoverOut={() => setHover(false)}>
 				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text" }}>
-					<ProcessedMessage text={props.message.text} />
+					<ProcessedMessage text={props.message.text} server={props.server} />
 					{hover && <Text style={{ color: "white", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text>}
 				</Text>
 			</Pressable>
@@ -170,42 +170,64 @@ const MessageCard = (props: MessageCardProps) => {
 
 interface ProcessedMessageProps {
 	text: string;
+	server: Server;
 }
 
-const ProcessedMessage = ({ text }: ProcessedMessageProps) => {
+type Gif = {
+	source: string;
+	width: number | undefined;
+	height: number | undefined;
+};
+
+const ProcessedMessage = (props: ProcessedMessageProps) => {
 	const URL_REGEX = /(http|https|HTTP|HTTPS):\/\/[\w_-]\S*/g;
-	const [gifUrl, setGifUrl] = useState<string | null>(null);
+	const [gif, setGif] = useState<Gif | null>(null);
 	const [error, setError] = useState<boolean>(false);
 
 	useEffect(() => {
-		const fetchGif = async (id: string) => {
+		const fetchTenor = async (id: string, server: Server) => {
 			try {
-				const response = await fetch(`https://tenor.googleapis.com/v2/posts?key=${Secrets.Tenor}&media_filter=gif&ids=${id}`);
+				const response = await fetch(`${server.ip}/gifs?id=${id}&origin=T`);
 				const json = await response.json();
-				setGifUrl(json.results[0].media_formats.gif.url);
+				setGif(json);
 			} catch (e) {
 				setError(true);
 			}
 		};
 
-		if (text.includes("[gif](")) {
-			const id = text.split("(")[1].split(")")[0];
-			fetchGif(id);
-		}
-	}, [text]);
+		const fetchGiphy = async (id: string, server: Server) => {
+			try {
+				const response = await fetch(`${server.ip}/gifs?id=${id}&origin=G	`);
+				const json = await response.json();
+				setGif(json);
+			} catch (e) {
+				setError(true);
+			}
+		};
 
-	if (gifUrl) {
-		return <ExpoImage source={{ uri: gifUrl }} style={{ width: 200, height: 200, marginTop: 2, marginLeft: 2, borderRadius: 5 }} />;
+		if (props.text.includes("[tenor](")) {
+			const id = props.text.split("(")[1].split(")")[0];
+			fetchTenor(id, props.server);
+		}
+
+		if (props.text.includes("[giphy](")) {
+			const id = props.text.split("(")[1].split(")")[0];
+			fetchGiphy(id, props.server);
+		}
+	}, [props.text]);
+
+	if (gif) {
+		return <ExpoImage source={{ uri: gif.source }} style={{ width: gif.width ?? 250, height: gif.height ?? 250, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
 	}
 
 	if (error) {
 		return <Text style={{ color: "red" }}>Failed to load gif</Text>;
 	}
 
-	const URLs = text.match(URL_REGEX);
-	const parts = text.split(" ");
+	const URLs = props.text.match(URL_REGEX);
+	const parts = props.text.split(" ");
 
-	if (!URLs) return <Text>{text}</Text>;
+	if (!URLs) return <Text>{props.text}</Text>;
 
 	return (
 		<Text>
