@@ -97,7 +97,6 @@ export default function ChatWindow(props: ChatWindowProps) {
 							}
 							return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} />;
 						}}
-						refreshing={true}
 						onStartReached={() => {
 							console.log("end!");
 							// TODO implement loading more messages when reaching end
@@ -189,6 +188,7 @@ const ProcessedMessage = (props: ProcessedMessageProps) => {
 			try {
 				const response = await fetch(`${server.ip}/gifs?id=${id}&origin=T`);
 				const json = await response.json();
+				if (response.status != 200) return setError(true);
 				setGif(json);
 			} catch (e) {
 				setError(true);
@@ -197,8 +197,10 @@ const ProcessedMessage = (props: ProcessedMessageProps) => {
 
 		const fetchGiphy = async (id: string, server: Server) => {
 			try {
-				const response = await fetch(`${server.ip}/gifs?id=${id}&origin=G	`);
+				const response = await fetch(`${server.ip}/gifs?id=${id}&origin=G`);
 				const json = await response.json();
+
+				if (response.status != 200) return setError(true);
 				setGif(json);
 			} catch (e) {
 				setError(true);
