@@ -1,17 +1,9 @@
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useState, useRef, useEffect } from "react";
 import { View, Animated, Easing, Pressable, Text, Image } from "react-native";
-import { LocalSettings, updateServerData } from "../handlers/storage";
+import { LocalSettings } from "../handlers/storage";
 import AddServerModal from "./modals/addServer";
-
-export type Server = {
-	id: number;
-	accessToken: string;
-	title: string;
-	ip: string;
-	iconURL?: string;
-};
+import Server from "../types/server";
 
 export default function ServerList(props: { setServer: Function; selectedServer?: Server }) {
 	const [serverList, setServerList] = useState<Server[]>([]);
@@ -31,8 +23,6 @@ export default function ServerList(props: { setServer: Function; selectedServer?
 		load();
 	}, []);
 
-	const router = useRouter();
-
 	return (
 		<View style={{ marginHorizontal: 5 }}>
 			{serverList.map((server) => {
@@ -51,14 +41,13 @@ interface ServerIconProps {
 
 function ServerIcon(props: ServerIconProps) {
 	const [hover, setHover] = useState(false);
-	// console.log(props.selected);
 
 	const borderRadius = useRef(new Animated.Value(props.selected ? 5 : 20)).current;
 
 	const animateBorderRadius = (toValue: number) => {
 		Animated.timing(borderRadius, {
 			toValue,
-			duration: 100, // Adjust the duration as needed
+			duration: 100,
 			easing: Easing.inOut(Easing.ease),
 			useNativeDriver: false, // Border radius does not support native driver
 		}).start();
@@ -76,7 +65,7 @@ function ServerIcon(props: ServerIconProps) {
 				props.onPressed ? props.onPressed(props.server) : null;
 			}}
 			onLongPress={() => {
-				updateServerData();
+				// updateServerData();
 			}}
 			onPointerEnter={() => {
 				setHover(true);

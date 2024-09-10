@@ -1,7 +1,8 @@
-import { User, UserType } from "@/handlers/storage";
-import { Channel } from "../../components/ChannelList";
+import { User } from "../../handlers/storage";
+import UserType from "../../types/user";
+import Channel from "../../types/channel";
 import ChatWindow, { Message } from "../../components/ChatWindow";
-import { Server } from "../../components/ServerList";
+import Server from "../../types/server";
 import SideBar from "../../components/SideBar";
 import { Colors } from "../../constants/Colors";
 import getSocket from "../../handlers/socket";

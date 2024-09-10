@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { View, FlatList, Pressable, Text } from "react-native";
-import { Server } from "./ServerList";
-import { UserType } from "../handlers/storage";
-import UserCard from "./UserCard";
+import User from "../types/user";
+import Server from "../types/server";
+import Channel from "../types/channel";
 
 interface ChanneListProps {
 	selected?: Channel;
 	setSelected: Function;
 	server: Server;
-	user?: UserType;
+	user?: User;
 }
 
 export default function ChannelList(props: ChanneListProps) {
@@ -61,11 +61,6 @@ export default function ChannelList(props: ChanneListProps) {
 		</View>
 	);
 }
-
-export type Channel = {
-	id: number;
-	title: string;
-};
 
 interface ChannelCardProps {
 	channel: Channel;

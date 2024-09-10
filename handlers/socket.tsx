@@ -1,8 +1,8 @@
 import { io } from "socket.io-client";
 import { Message } from "../components/ChatWindow";
 import { ChatCache } from "./chat";
-import { Server } from "../components/ServerList";
-import { Channel } from "../components/ChannelList";
+import Channel from "../types/channel";
+import Server from "../types/server";
 
 class Socket {
 	static instance: any = null;
@@ -11,9 +11,6 @@ class Socket {
 		if (!Socket.instance) {
 			Socket.instance = io(`${server.ip}`, {
 				secure: true,
-				// reconnection: true,
-				// rejectUnauthorized: false,
-
 				transports: ["websocket"],
 			});
 		}

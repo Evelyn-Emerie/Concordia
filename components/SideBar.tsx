@@ -1,15 +1,17 @@
 import { View, Text } from "react-native";
-import ChannelList, { Channel } from "./ChannelList";
-import ServerList, { Server } from "./ServerList";
-import { UserType } from "@/handlers/storage";
+import ChannelList from "./ChannelList";
+import ServerList from "./ServerList";
 import UserCard from "./UserCard";
+import T_Channel from "../types/channel";
+import T_Server from "../types/server";
+import T_User from "../types/user";
 
 interface SideBarProps {
-	selectedChannel?: Channel;
+	selectedChannel?: T_Channel;
 	setSelectedChannel: Function;
-	server?: Server;
+	server?: T_Server;
 	setSelectedServer: Function;
-	user?: UserType;
+	user?: T_User;
 }
 
 export default function SideBar(props: SideBarProps) {

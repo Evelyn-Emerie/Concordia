@@ -1,14 +1,10 @@
+import Server from "../types/server";
+import T_User from "../types/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Server } from "../components/ServerList";
 import { Platform } from "react-native";
 
-export type UserType = {
-	username: string;
-	password: string;
-};
-
 export class User {
-	static user: UserType = {} as UserType;
+	static user: T_User = {} as T_User;
 
 	static async getUserObject() {
 		if (!User.user.username) {
@@ -32,7 +28,7 @@ export class User {
 }
 
 const getUser = async () => {
-	const user: UserType = JSON.parse((await AsyncStorage.getItem("user")) ?? "{}");
+	const user: T_User = JSON.parse((await AsyncStorage.getItem("user")) ?? "{}");
 	return user;
 };
 

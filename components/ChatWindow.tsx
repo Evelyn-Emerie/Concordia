@@ -5,8 +5,8 @@ import AutoExpandingTextInput from "./AutoTextInput";
 import Loading from "../components/loading";
 import { getMessages, sendMessage } from "../handlers/chat";
 import { Colors } from "../constants/Colors";
-import { Server } from "./ServerList";
-import { Channel } from "./ChannelList";
+import Server from "../types/server";
+import Channel from "../types/channel";
 import { Image as ExpoImage } from "expo-image";
 
 export type Message = {
@@ -231,7 +231,6 @@ const ProcessedMessage = (props: ProcessedMessageProps) => {
 		if (gif.width && gif.height) {
 			if (gif.width > props.dimensions.width - 75) width = props.dimensions.width - 75;
 			else width = gif.width;
-
 			height = gif.height;
 		}
 		return <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory-disk"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;

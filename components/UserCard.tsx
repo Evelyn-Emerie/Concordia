@@ -3,9 +3,9 @@ import { router } from "expo-router";
 import { View, Pressable, Text } from "react-native";
 import { Image as ExpoImage } from "expo-image";
 import { Colors } from "../constants/Colors";
-import { UserType } from "@/handlers/storage";
+import T_User from "../types/user";
 
-export default function UserCard(props: { user?: UserType }) {
+export default function UserCard(props: { user?: T_User }) {
 	return (
 		<View style={{ alignSelf: "flex-end", width: "100%", paddingHorizontal: 10, height: 60, backgroundColor: Colors.dark.background, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingBottom: 10 }}>
 			<ExpoImage source="https://media1.tenor.com/m/tCL3HGcaV4UAAAAd/raccoon-dance.gif" style={{ width: 45, height: 45 }} />

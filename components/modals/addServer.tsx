@@ -3,8 +3,9 @@ import StyledTextInput from "../StyledTextInput";
 import { Colors } from "../../constants/Colors";
 import StyledButton from "../inputs/StyledButton";
 import { useEffect, useRef, useState } from "react";
-import { Server } from "../ServerList";
-import { addServer, LocalSettings, User } from "../../handlers/storage";
+import Server from "../../types/server";
+import { addServer, LocalSettings } from "../../handlers/storage";
+import { User } from "../../handlers/storage";
 
 type ServerInfo = {
 	title: string;
