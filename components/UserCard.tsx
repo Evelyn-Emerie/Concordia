@@ -7,7 +7,7 @@ import { UserType } from "@/handlers/storage";
 
 export default function UserCard(props: { user?: UserType }) {
 	return (
-		<View style={{ alignSelf: "flex-end", width: "100%", height: 60, backgroundColor: Colors.dark.background, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingBottom: 10 }}>
+		<View style={{ alignSelf: "flex-end", width: "100%", paddingHorizontal: 10, height: 60, backgroundColor: Colors.dark.background, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingBottom: 10 }}>
 			<ExpoImage source="https://media1.tenor.com/m/tCL3HGcaV4UAAAAd/raccoon-dance.gif" style={{ width: 45, height: 45 }} />
 			<View style={{ width: 10 }} />
 			<Text style={{ color: Colors.dark.text, fontWeight: 600, fontSize: 18 }}>{props.user?.username ?? ""}</Text>

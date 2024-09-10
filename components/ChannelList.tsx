@@ -58,7 +58,6 @@ export default function ChannelList(props: ChanneListProps) {
 					}}
 				/>
 			) : null}
-			{props.user ? <UserCard user={props.user} /> : null}
 		</View>
 	);
 }
