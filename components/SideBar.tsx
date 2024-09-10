@@ -20,7 +20,13 @@ export default function SideBar(props: SideBarProps) {
 			{props.server ? (
 				<ChannelList selected={props.selectedChannel} setSelected={props.setSelectedChannel} server={props.server} />
 			) : (
-				<View style={{ width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>
+				<View
+					style={{
+						width: "100%",
+						flex: 1,
+						justifyContent: "center",
+						alignItems: "center",
+					}}>
 					<Text style={{ color: "white" }}>No channels</Text>
 				</View>
 			)}

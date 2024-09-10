@@ -23,7 +23,10 @@ export default function ServerList(props: { setServer: Function; selectedServer?
 	useEffect(() => {
 		const load = async () => {
 			const settings = await LocalSettings.get();
-			if (settings.servers) setServerList(settings.servers);
+			if (settings.servers) {
+				setServerList(settings.servers);
+				props.setServer(settings.servers[0]);
+			}
 		};
 		load();
 	}, []);
@@ -108,7 +111,7 @@ function ServerIcon(props: ServerIconProps) {
 						alignItems: "center",
 						backgroundColor: "#101010",
 						borderRadius: 10,
-						maxWidth: 150,
+						width: 150,
 						paddingHorizontal: 10,
 					}}>
 					<View

@@ -15,6 +15,7 @@ export default function ChannelList(props: ChanneListProps) {
 		const json = (await request.json()) as Channel[];
 
 		setChannels(json);
+		if (json.length > 0) props.setSelected(json[0]);
 	};
 
 	useEffect(() => {
@@ -34,6 +35,7 @@ export default function ChannelList(props: ChanneListProps) {
 					justifyContent: "center",
 					marginBottom: 10,
 					marginLeft: 5,
+					width: 150,
 				}}>
 				<Text style={{ color: "white", fontSize: 24 }}>{props.server.title}</Text>
 			</View>
