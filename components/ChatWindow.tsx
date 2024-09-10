@@ -157,14 +157,14 @@ const MessageCard = (props: MessageCardProps) => {
 	return (
 		<View style={{ minHeight: 20, width: "100%", paddingHorizontal: 10, paddingTop: props.isLastInGroup ? 2 : 0, marginTop: props.isLastInGroup ? 10 : 0 }}>
 			{props.isLastInGroup && (
-				<View style={{ flexDirection: "row", alignItems: "flex-end", marginBottom: 5 }}>
+				<View style={{ flexDirection: "row", alignItems: "flex-end" }}>
 					<View style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5, overflow: "hidden" }}>{props.message.user.profilePicture ? <Image source={{ uri: `${props.server.ip}/users/pfp/${props.message.user.profilePicture}`, width: 30, height: 30 }} /> : null}</View>
 					<Text style={{ color: "#fff", fontWeight: "500", marginBottom: 5 }}>{props.message.user.nickname ?? props.message.user.username}</Text>
 					<Text style={{ color: "#ddd", fontSize: 10, marginBottom: 5 }}> {timestamp}</Text>
 				</View>
 			)}
 			<Pressable style={{ cursor: "auto" }} onLongPress={() => Platform.OS != "web" && copyToClipboard(props.message.text)} onHoverIn={() => setHover(true)} onHoverOut={() => setHover(false)}>
-				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text", marginBottom: 5 }}>
+				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text", padding: 2, borderRadius: 2 }}>
 					<ProcessedMessage text={props.message.text} server={props.server} dimensions={props.dimensions} />
 					{hover && <Text style={{ color: "white", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text>}
 				</Text>
@@ -234,7 +234,7 @@ const ProcessedMessage = (props: ProcessedMessageProps) => {
 
 			height = gif.height;
 		}
-		return <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory-disk"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, paddingBottom: 5, borderRadius: 5 }} />;
+		return <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory-disk"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
 	}
 
 	if (error) {
