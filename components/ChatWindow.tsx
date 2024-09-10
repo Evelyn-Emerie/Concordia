@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Linking, Platform, Pressable, Text, useWindowDimensions, View, FlatList, Image } from "react-native";
+import { Linking, Platform, Pressable, Text, useWindowDimensions, View, FlatList, Image, Dimensions, ScaledSize } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import AutoExpandingTextInput from "./AutoTextInput";
 import Loading from "../components/loading";
@@ -30,6 +30,7 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow(props: ChatWindowProps) {
+	const dimensions = Dimensions.get("screen");
 	const { height } = useWindowDimensions();
 	const [isLoading, setLoading] = useState(true);
 	const [data, setData] = useState<Message[]>([]);
@@ -88,14 +89,19 @@ export default function ChatWindow(props: ChatWindowProps) {
 						data={[...data].reverse()}
 						renderItem={({ item, index }) => {
 							let isLastInGroup = true;
-							if (index > 0) {
-								const previousItem = data[data.length - 1 - index]; // Adjust index for reversed array
-								const currentItem = data[data.length - index];
+							try {
+								if (index > 0) {
+									const previousItem = data[data.length - 1 - index]; // Adjust index for reversed array
+									const currentItem = data[data.length - index];
 
-								const sameDay = new Date(data[data.length - index].id).toLocaleDateString() == new Date(data[data.length - 1 - index].id).toLocaleDateString(); // same day?
-								isLastInGroup = currentItem.user.id != previousItem.user.id || !sameDay;
+									const sameDay = new Date(data[data.length - index].id).toLocaleDateString() == new Date(data[data.length - 1 - index].id).toLocaleDateString(); // same day?
+									isLastInGroup = currentItem.user.id != previousItem.user.id || !sameDay;
+								}
+							} catch (e) {
+								console.log(e);
+								isLastInGroup = true;
 							}
-							return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} />;
+							return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} dimensions={dimensions} />;
 						}}
 						onStartReached={() => {
 							console.log("end!");
@@ -139,6 +145,7 @@ interface MessageCardProps {
 	isLastInGroup: boolean;
 	server: Server;
 	index?: number;
+	dimensions: ScaledSize;
 }
 
 const MessageCard = (props: MessageCardProps) => {
@@ -159,7 +166,7 @@ const MessageCard = (props: MessageCardProps) => {
 			)}
 			<Pressable style={{ cursor: "auto" }} onLongPress={() => Platform.OS != "web" && copyToClipboard(props.message.text)} onHoverIn={() => setHover(true)} onHoverOut={() => setHover(false)}>
 				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text" }}>
-					<ProcessedMessage text={props.message.text} server={props.server} />
+					<ProcessedMessage text={props.message.text} server={props.server} dimensions={props.dimensions} />
 					{hover && <Text style={{ color: "white", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text>}
 				</Text>
 			</Pressable>
@@ -170,6 +177,7 @@ const MessageCard = (props: MessageCardProps) => {
 interface ProcessedMessageProps {
 	text: string;
 	server: Server;
+	dimensions: ScaledSize;
 }
 
 type Gif = {
@@ -219,7 +227,15 @@ const ProcessedMessage = (props: ProcessedMessageProps) => {
 	}, [props.text]);
 
 	if (gif) {
-		return <ExpoImage source={{ uri: gif.source }} style={{ width: gif.width ?? 250, height: gif.height ?? 250, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
+		let width = 250,
+			height = 250;
+		if (gif.width && gif.height) {
+			if (gif.width > props.dimensions.width - 75) width = props.dimensions.width - 75;
+			else width = gif.width;
+
+			height = gif.height;
+		}
+		return <ExpoImage source={{ uri: gif.source }} style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
 	}
 
 	if (error) {

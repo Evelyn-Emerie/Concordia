@@ -157,7 +157,7 @@ const getLocalSettings = async () => {
 		servers: [],
 		LinkInNative: false,
 	};
-	const settings = await JSON.parse((await AsyncStorage.getItem("localSettings")) ?? "");
+	const settings = await JSON.parse((await AsyncStorage.getItem("localSettings")) ?? "{}");
 	if (settings.servers) return settings;
 	else return newLocal;
 };
