@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import { View, FlatList, Pressable, Text } from "react-native";
 import { Server } from "./ServerList";
-import { Colors } from "../constants/Colors";
 import { UserType } from "../handlers/storage";
-import { Image as ExpoImage } from "expo-image";
-import { MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import UserCard from "./UserCard";
 
 interface ChanneListProps {
 	selected?: Channel;
@@ -61,29 +58,7 @@ export default function ChannelList(props: ChanneListProps) {
 					}}
 				/>
 			) : null}
-			{props.user ? (
-				<View style={{ alignSelf: "flex-end", width: "100%", height: 60, backgroundColor: Colors.dark.background, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingBottom: 10 }}>
-					<ExpoImage source="https://media1.tenor.com/m/tCL3HGcaV4UAAAAd/raccoon-dance.gif" style={{ width: 45, height: 45 }} />
-					<View style={{ width: 10 }} />
-					<View>
-						<Text style={{ color: Colors.dark.text, fontWeight: 600, fontSize: 18 }}>{props.user?.username ?? ""}</Text>
-						<Text style={{ color: Colors.dark.text }}>Online</Text>
-					</View>
-					<View style={{ flex: 1 }} />
-					<Pressable
-						onPress={() => {
-							router.push("/settings/settings");
-						}}>
-						<View
-							style={{
-								width: 25,
-								height: 25,
-							}}>
-							<MaterialIcons name="settings" size={25} color={"#ddd"} />
-						</View>
-					</Pressable>
-				</View>
-			) : null}
+			{props.user ? <UserCard user={props.user} /> : null}
 		</View>
 	);
 }
