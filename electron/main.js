@@ -40,8 +40,10 @@ function createWindow() {
     win.menuBarVisible = false;
 
     // Load the Express server URL
-    // win.loadURL(`http://127.0.0.1:${PORT}`);
-    win.loadURL(`http://127.0.0.1:8081`); //! DEV MODE
+    if (process.env.DEV)
+        win.loadURL(`http://127.0.0.1:8081`); // DEV MODE
+    else
+        win.loadURL(`http://127.0.0.1:${PORT}`);
 
     win.once('ready-to-show', () => {
         win.show();
