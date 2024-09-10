@@ -116,7 +116,7 @@ function ServerIcon(props: ServerIconProps) {
 							marginTop: -5, // Center the triangle vertically
 						}}
 					/>
-					<Text style={{ color: "white", flexWrap: "nowrap" }} numberOfLines={1} ellipsizeMode="tail">
+					<Text style={{ color: "white", flexWrap: "nowrap", fontSize: 20 }} numberOfLines={1} ellipsizeMode="tail">
 						{props.server.title}
 					</Text>
 				</View>

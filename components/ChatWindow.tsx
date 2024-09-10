@@ -98,7 +98,6 @@ export default function ChatWindow(props: ChatWindowProps) {
 									isLastInGroup = currentItem.user.id != previousItem.user.id || !sameDay;
 								}
 							} catch (e) {
-								console.log(e);
 								isLastInGroup = true;
 							}
 							return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} dimensions={dimensions} />;
@@ -165,7 +164,7 @@ const MessageCard = (props: MessageCardProps) => {
 				</View>
 			)}
 			<Pressable style={{ cursor: "auto" }} onLongPress={() => Platform.OS != "web" && copyToClipboard(props.message.text)} onHoverIn={() => setHover(true)} onHoverOut={() => setHover(false)}>
-				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text" }}>
+				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text", marginBottom: 5 }}>
 					<ProcessedMessage text={props.message.text} server={props.server} dimensions={props.dimensions} />
 					{hover && <Text style={{ color: "white", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text>}
 				</Text>
@@ -235,8 +234,7 @@ const ProcessedMessage = (props: ProcessedMessageProps) => {
 
 			height = gif.height;
 		}
-
-		return <ExpoImage source={{ uri: gif.source }} style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
+		return <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory-disk"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, paddingBottom: 5, borderRadius: 5 }} />;
 	}
 
 	if (error) {
