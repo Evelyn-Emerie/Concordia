@@ -2,7 +2,7 @@ import { Modal, Pressable, TouchableWithoutFeedback, View, Text, Image } from "r
 import StyledTextInput from "../StyledTextInput";
 import { Colors } from "../../constants/Colors";
 import StyledButton from "../inputs/StyledButton";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Server } from "../ServerList";
 import { addServer, LocalSettings, User } from "../../handlers/storage";
 
@@ -23,6 +23,15 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 	const [serverInfo, setServerInfo] = useState<ServerInfo>();
 
 	const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
+	useEffect(() => {
+		const load = async () => {
+			const user = await User.getUserObject();
+			setUsername(user.username);
+			setPassword(user.password);
+		};
+		load();
+	}, []);
 
 	const getServerInfo = async (adress: string) => {
 		try {
@@ -183,35 +192,6 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 							}}
 							width={300}
 						/>
-						<StyledTextInput
-							label="Username"
-							text={username}
-							onChangeText={(t: string) => {
-								setUsername(t);
-								if (error) setError("");
-							}}
-							width={300}
-							camelCase
-						/>
-						<StyledTextInput
-							label="Password"
-							text={password}
-							hidden
-							onChangeText={(t: string) => {
-								setPassword(t);
-								if (error) setError("");
-							}}
-							width={300}
-							camelCase
-						/>
-						<Pressable
-							onPress={async () => {
-								const user = await User.getUserObject();
-								setUsername(user.username);
-								setPassword(user.password);
-							}}>
-							<Text style={{ color: Colors.dark.secondary, textDecorationLine: "underline" }}>Autofill local user</Text>
-						</Pressable>
 						<View style={{ flexDirection: "row", marginTop: 20 }}>
 							<StyledButton label="Sign in" onPress={handleSignIn} loading={signIn} />
 							<View style={{ width: 20 }} />
