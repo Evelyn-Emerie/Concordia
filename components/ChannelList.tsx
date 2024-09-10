@@ -4,6 +4,8 @@ import { Server } from "./ServerList";
 import { Colors } from "../constants/Colors";
 import { UserType } from "../handlers/storage";
 import { Image as ExpoImage } from "expo-image";
+import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 interface ChanneListProps {
 	selected?: Channel;
@@ -67,6 +69,19 @@ export default function ChannelList(props: ChanneListProps) {
 						<Text style={{ color: Colors.dark.text, fontWeight: 600, fontSize: 18 }}>{props.user?.username ?? ""}</Text>
 						<Text style={{ color: Colors.dark.text }}>Online</Text>
 					</View>
+					<View style={{ flex: 1 }} />
+					<Pressable
+						onPress={() => {
+							router.push("/settings/settings");
+						}}>
+						<View
+							style={{
+								width: 25,
+								height: 25,
+							}}>
+							<MaterialIcons name="settings" size={25} color={"#ddd"} />
+						</View>
+					</Pressable>
 				</View>
 			) : null}
 		</View>

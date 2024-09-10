@@ -39,20 +39,6 @@ export default function ServerList(props: { setServer: Function; selectedServer?
 				return <ServerIcon key={server.id} onPressed={handleServerSelect} server={server} selected={props.selectedServer ? props.selectedServer.id == server.id : false} />;
 			})}
 			<AddServer />
-			<View style={{ flex: 1 }} />
-			<Pressable
-				onPress={() => {
-					router.push("/settings/settings");
-				}}>
-				<View
-					style={{
-						width: 40,
-						height: 40,
-						marginBottom: 10,
-					}}>
-					<MaterialIcons name="settings" size={40} color={"#ddd"} />
-				</View>
-			</Pressable>
 		</View>
 	);
 }
