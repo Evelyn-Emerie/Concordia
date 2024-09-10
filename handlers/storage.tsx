@@ -153,5 +153,11 @@ const getLocalSettings = async () => {
 		}
 
 	// If running on Android/iOS get settings from react storage
-	return await JSON.parse((await AsyncStorage.getItem("localSettings")) ?? "{}");
+	const newLocal: TypeLocalSettings = {
+		servers: [],
+		LinkInNative: false,
+	};
+	const settings = await JSON.parse((await AsyncStorage.getItem("localSettings")) ?? "");
+	if (settings.servers) return settings;
+	else return newLocal;
 };

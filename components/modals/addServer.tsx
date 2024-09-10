@@ -114,7 +114,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 				if (response.status == 403) return setError(json.message);
 
 				const localSettings = await LocalSettings.get();
-				const lastId = localSettings.servers.length > 0 ? localSettings.servers[localSettings.servers.length - 1].id : 0;
+				const lastId = !localSettings.servers ? 0 : localSettings.servers.length > 0 ? localSettings.servers[localSettings.servers.length - 1].id : 0;
 				const server: Server = {
 					id: lastId + 1 ?? 0,
 					accessToken: json.token,

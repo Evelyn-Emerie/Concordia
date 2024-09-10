@@ -8,6 +8,7 @@ import AccountSettingsPage from "./account";
 import DesktopSettings from "./desktop";
 import { LocalSettings, TypeLocalSettings } from "../../handlers/storage";
 import Loading from "../../components/loading";
+import { Colors } from "../../constants/Colors";
 
 let preLoadedSettings: TypeLocalSettings;
 
@@ -55,7 +56,7 @@ export default function SettingsScreen() {
 		<GestureHandlerRootView>
 			<SafeAreaView
 				style={{
-					backgroundColor: "#161616",
+					backgroundColor: Colors.dark.background,
 					flex: 1,
 					flexDirection: "row",
 				}}>
