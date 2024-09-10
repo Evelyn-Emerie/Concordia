@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import { View, FlatList, Pressable, Text } from "react-native";
 import { Server } from "./ServerList";
+import { Colors } from "../constants/Colors";
+import { UserType } from "../handlers/storage";
+import { Image as ExpoImage } from "expo-image";
 
 interface ChanneListProps {
 	selected?: Channel;
 	setSelected: Function;
 	server: Server;
+	user?: UserType;
 }
 
 export default function ChannelList(props: ChanneListProps) {
@@ -35,7 +39,7 @@ export default function ChannelList(props: ChanneListProps) {
 					justifyContent: "center",
 					marginBottom: 10,
 					marginLeft: 5,
-					width: 150,
+					width: 200,
 				}}>
 				<Text style={{ color: "white", fontSize: 24 }}>{props.server.title}</Text>
 			</View>
@@ -54,6 +58,16 @@ export default function ChannelList(props: ChanneListProps) {
 						);
 					}}
 				/>
+			) : null}
+			{props.user ? (
+				<View style={{ alignSelf: "flex-end", width: "100%", height: 60, backgroundColor: Colors.dark.background, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingBottom: 10 }}>
+					<ExpoImage source="https://media1.tenor.com/m/tCL3HGcaV4UAAAAd/raccoon-dance.gif" style={{ width: 45, height: 45 }} />
+					<View style={{ width: 10 }} />
+					<View>
+						<Text style={{ color: Colors.dark.text, fontWeight: 600, fontSize: 18 }}>{props.user?.username ?? ""}</Text>
+						<Text style={{ color: Colors.dark.text }}>Online</Text>
+					</View>
+				</View>
 			) : null}
 		</View>
 	);

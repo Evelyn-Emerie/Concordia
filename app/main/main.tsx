@@ -1,3 +1,4 @@
+import { User, UserType } from "@/handlers/storage";
 import { Channel } from "../../components/ChannelList";
 import ChatWindow, { Message } from "../../components/ChatWindow";
 import { Server } from "../../components/ServerList";
@@ -13,16 +14,22 @@ export default function MainWindow() {
 	const [selectedChannel, setSelectedChannel] = useState<Channel | undefined>();
 	const [selectedServer, setSelectedServer] = useState<Server | undefined>();
 	const drawer = useRef<DrawerLayout>(null);
+	const [user, setUser] = useState<UserType | undefined>();
 
 	useEffect(() => {
 		if (selectedServer) getSocket(setNewMessage, selectedChannel as Channel, selectedServer as Server, newMessage);
 	}, [selectedServer, selectedChannel]);
 
+	useEffect(() => {
+		const getUser = async () => setUser(await User.getUserObject());
+		getUser();
+	}, []);
+
 	const isWeb = Platform.OS == "web";
 	if (isWeb)
 		return (
 			<View style={{ flex: 1, width: "100%", backgroundColor: Colors.dark.background, flexDirection: "row" }}>
-				<SideBar selectedChannel={selectedChannel} setSelectedChannel={setSelectedChannel} server={selectedServer} setSelectedServer={setSelectedServer} />
+				<SideBar selectedChannel={selectedChannel} setSelectedChannel={setSelectedChannel} server={selectedServer} setSelectedServer={setSelectedServer} user={user} />
 				<ChatWindow activeChannel={selectedChannel} server={selectedServer} newMessage={newMessage} />
 			</View>
 		);
@@ -36,7 +43,7 @@ export default function MainWindow() {
 
 	return (
 		<GestureDetector gesture={fling}>
-			<DrawerLayout ref={drawer} drawerType="front" drawerWidth={235} drawerBackgroundColor="#00000088" drawerPosition="left" renderNavigationView={() => <SideBar selectedChannel={selectedChannel} setSelectedChannel={setSelectedChannel} server={selectedServer} setSelectedServer={setSelectedServer} />}>
+			<DrawerLayout ref={drawer} drawerType="front" drawerWidth={235} drawerBackgroundColor="#00000088" drawerPosition="left" renderNavigationView={() => <SideBar selectedChannel={selectedChannel} setSelectedChannel={setSelectedChannel} server={selectedServer} setSelectedServer={setSelectedServer} user={user} />}>
 				<ChatWindow activeChannel={selectedChannel} server={selectedServer} newMessage={newMessage} />
 			</DrawerLayout>
 		</GestureDetector>

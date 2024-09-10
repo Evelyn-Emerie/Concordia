@@ -235,6 +235,7 @@ const ProcessedMessage = (props: ProcessedMessageProps) => {
 
 			height = gif.height;
 		}
+
 		return <ExpoImage source={{ uri: gif.source }} style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
 	}
 

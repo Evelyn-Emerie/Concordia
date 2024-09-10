@@ -1,12 +1,14 @@
 import { View, Text } from "react-native";
 import ChannelList, { Channel } from "./ChannelList";
 import ServerList, { Server } from "./ServerList";
+import { UserType } from "@/handlers/storage";
 
 interface SideBarProps {
 	selectedChannel?: Channel;
 	setSelectedChannel: Function;
 	server?: Server;
 	setSelectedServer: Function;
+	user?: UserType;
 }
 
 export default function SideBar(props: SideBarProps) {
@@ -14,11 +16,11 @@ export default function SideBar(props: SideBarProps) {
 		<View
 			style={{
 				flexDirection: "row-reverse",
-				width: 235,
+				width: 285,
 				height: "100%",
 			}}>
 			{props.server ? (
-				<ChannelList selected={props.selectedChannel} setSelected={props.setSelectedChannel} server={props.server} />
+				<ChannelList selected={props.selectedChannel} setSelected={props.setSelectedChannel} server={props.server} user={props.user} />
 			) : (
 				<View
 					style={{
