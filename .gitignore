@@ -10,6 +10,9 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+electron/Concordia-darwin-x64
+electron/Concordia-linux-x64
+electron/Concordia-win32-x64
 
 # macOS
 .DS_Store
