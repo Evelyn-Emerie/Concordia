@@ -1,11 +1,10 @@
 import { Modal, Pressable, TouchableWithoutFeedback, View, Text, Image } from "react-native";
 import StyledTextInput from "../StyledTextInput";
-import { Colors } from "../../constants/Colors";
+import { Colors } from "@/constants/Colors";
 import StyledButton from "../inputs/StyledButton";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { addServer, LocalSettings, User } from "../../handlers/storage";
 import Server from "../../types/server";
-import { addServer, LocalSettings } from "../../handlers/storage";
-import { User } from "../../handlers/storage";
 
 type ServerInfo = {
 	title: string;
@@ -24,15 +23,6 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 	const [serverInfo, setServerInfo] = useState<ServerInfo>();
 
 	const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-
-	useEffect(() => {
-		const load = async () => {
-			const user = await User.getUserObject();
-			setUsername(user.username);
-			setPassword(user.password);
-		};
-		load();
-	}, []);
 
 	const getServerInfo = async (adress: string) => {
 		try {
@@ -124,7 +114,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 				if (response.status == 403) return setError(json.message);
 
 				const localSettings = await LocalSettings.get();
-				const lastId = !localSettings.servers ? 0 : localSettings.servers.length > 0 ? localSettings.servers[localSettings.servers.length - 1].id : 0;
+				const lastId = localSettings.servers.length > 0 ? localSettings.servers[localSettings.servers.length - 1].id : 0;
 				const server: Server = {
 					id: lastId + 1 ?? 0,
 					accessToken: json.token,
@@ -193,6 +183,35 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 							}}
 							width={300}
 						/>
+						<StyledTextInput
+							label="Username"
+							text={username}
+							onChangeText={(t: string) => {
+								setUsername(t);
+								if (error) setError("");
+							}}
+							width={300}
+							camelCase
+						/>
+						<StyledTextInput
+							label="Password"
+							text={password}
+							hidden
+							onChangeText={(t: string) => {
+								setPassword(t);
+								if (error) setError("");
+							}}
+							width={300}
+							camelCase
+						/>
+						<Pressable
+							onPress={async () => {
+								const user = await User.getUserObject();
+								setUsername(user.username);
+								setPassword(user.password);
+							}}>
+							<Text style={{ color: Colors.dark.secondary, textDecorationLine: "underline" }}>Autofill local user</Text>
+						</Pressable>
 						<View style={{ flexDirection: "row", marginTop: 20 }}>
 							<StyledButton label="Sign in" onPress={handleSignIn} loading={signIn} />
 							<View style={{ width: 20 }} />

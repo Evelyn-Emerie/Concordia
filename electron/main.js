@@ -37,7 +37,7 @@ function createWindow() {
         show: false
     });
 
-    win.removeMenu();
+    //! TEMPORARY win.removeMenu();
 
     // Load the Express server URL
     if (process.env.DEV)

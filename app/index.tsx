@@ -1,15 +1,21 @@
+import { Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../constants/Colors";
 import MainWindow from "./main/main";
-import { useEffect } from "react";
-import { LocalSettings } from "@/handlers/storage";
+import { useEffect, useState } from "react";
+import { User } from "@/handlers/storage";
+import Loading from "@/components/loading";
+import Register from "./register";
 
 export default function Index() {
+	const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
 	useEffect(() => {
 		async function load() {
-			const settings = await LocalSettings.get();
-			console.log(settings);
+			const user = await User.getUserObject();
+			console.log(user);
+			if (user.username.length < 3 || user.password.length < 5) setLoggedIn(false);
+			else setLoggedIn(true);
 		}
 		load();
 	}, []);
@@ -20,7 +26,7 @@ export default function Index() {
 					backgroundColor: Colors.dark.background,
 					flex: 1,
 				}}>
-				<MainWindow />
+				{loggedIn == null ? <Loading /> : loggedIn == true ? <MainWindow /> : <Register />}
 			</SafeAreaView>
 		</GestureHandlerRootView>
 	);
