@@ -37,13 +37,14 @@ function createWindow() {
         show: false
     });
 
-    win.menuBarVisible = false;
+    win.removeMenu();
 
     // Load the Express server URL
     if (process.env.DEV)
         win.loadURL(`http://127.0.0.1:8081`); // DEV MODE
     else
         win.loadURL(`http://127.0.0.1:${PORT}`);
+
 
     win.once('ready-to-show', () => {
         win.show();
