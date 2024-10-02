@@ -35,7 +35,6 @@ export { ChatCache, getMessages, clearCache, sendMessage };
 const sendMessage = async (setText: Function, text: string, activeChannel: number, server: T_Server) => {
 	try {
 		setText("");
-
 		const res = await fetch(`${server.ip}/channels/${activeChannel}/messages`, {
 			method: "POST",
 			headers: {

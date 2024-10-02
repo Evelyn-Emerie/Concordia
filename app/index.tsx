@@ -13,7 +13,6 @@ export default function Index() {
 	useEffect(() => {
 		async function load() {
 			const user = await User.getUserObject();
-			console.log(user);
 			if (user.username.length < 3 || user.password.length < 5) setLoggedIn(false);
 			else setLoggedIn(true);
 		}

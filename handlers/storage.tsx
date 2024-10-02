@@ -90,8 +90,6 @@ const remServer = async (server: Server) => {
 	let newServers: Server[] = [];
 
 	localSettings.servers.forEach((item) => {
-		console.log(item);
-
 		if (server.id != item.id) {
 			newServers.push(item);
 		}
@@ -176,7 +174,6 @@ const getLocalSettings = async () => {
 				},
 			});
 			const d = await response.json();
-			console.log(d);
 
 			return d;
 		} catch (e) {

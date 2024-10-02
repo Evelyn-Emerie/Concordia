@@ -2,6 +2,7 @@ import { View, FlatList, Pressable, Text } from "react-native";
 import User from "../types/user";
 import Server from "../types/server";
 import Channel from "../types/channel";
+import { useEffect, useState } from "react";
 
 interface ChanneListProps {
 	selected?: Channel;
@@ -11,6 +12,24 @@ interface ChanneListProps {
 }
 
 export default function ChannelList(props: ChanneListProps) {
+	const [channels, setChannels] = useState<Channel[]>(props.server.channels);
+
+	const getChannels = async () => {
+		try {
+			const request = await fetch(`${props.server.ip}/channels/get`);
+			const json = (await request.json()) as Channel[];
+
+			setChannels(json);
+			if (json.length > 0) props.setSelected(json[0]);
+		} catch (e) {
+			setChannels([]);
+		}
+	};
+
+	useEffect(() => {
+		getChannels();
+	}, [props.server]);
+
 	const handleChange = (channel: Channel) => {
 		props.setSelected(channel);
 	};
@@ -28,9 +47,9 @@ export default function ChannelList(props: ChanneListProps) {
 				}}>
 				<Text style={{ color: "white", fontSize: 24 }}>{props.server.title}</Text>
 			</View>
-			{props.server.channels && props.server.channels.length > 0 ? (
+			{channels.length > 0 ? (
 				<FlatList
-					data={props.server.channels}
+					data={channels}
 					renderItem={(item) => {
 						return (
 							<ChannelCard

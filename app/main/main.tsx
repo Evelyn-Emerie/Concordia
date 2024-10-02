@@ -29,10 +29,14 @@ export default function MainWindow() {
 	}, []);
 
 	useEffect(() => {
+		setSelectedChannel(selectedServer?.channels[0] ?? undefined);
+	}, [selectedServer]);
+
+	useEffect(() => {
 		async function load() {
 			const settings = await LocalSettings.get();
 			setServers(settings.servers);
-			setSelectedServer(servers[0]);
+			setSelectedServer(settings.servers[0]);
 		}
 		load();
 		setUpdate(false);
