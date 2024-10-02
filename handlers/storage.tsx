@@ -85,6 +85,40 @@ const addServer = async (server: Server) => {
 	return await LocalSettings.save(localSettings);
 };
 
+const remServer = async (server: Server) => {
+	let localSettings = await LocalSettings.get();
+	let newServers: Server[] = [];
+
+	localSettings.servers.forEach((item) => {
+		console.log(item);
+
+		if (server.id != item.id) {
+			newServers.push(item);
+		}
+	});
+
+	localSettings.servers = newServers;
+
+	if (Platform.OS == "web") {
+		const PORT = require("../electron/LocalServer.json").port;
+		try {
+			await fetch(`http://127.0.0.1:${PORT}/settings/setServers`, {
+				method: "POST",
+				headers: {
+					"Accept": "*/*",
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					newServers: localSettings.servers,
+				}),
+			});
+		} catch (e) {
+			console.error(e);
+		}
+	}
+	return await LocalSettings.save(localSettings);
+};
+
 const updateServerData = async () => {
 	let settings = await LocalSettings.get();
 
@@ -100,6 +134,7 @@ const updateServerData = async () => {
 				title: json.title,
 				ip: server.ip,
 				iconURL: json.iconURL,
+				channels: json.channels,
 			};
 			return result;
 		}),
@@ -127,7 +162,7 @@ const updateServerData = async () => {
 	await LocalSettings.update();
 };
 
-export { LocalSettings, addServer, updateServerData };
+export { LocalSettings, addServer, updateServerData, remServer };
 
 const getLocalSettings = async () => {
 	// If running on web, get settings from electron's storage

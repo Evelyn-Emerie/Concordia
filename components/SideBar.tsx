@@ -10,7 +10,9 @@ interface SideBarProps {
 	selectedChannel?: T_Channel;
 	setSelectedChannel: Function;
 	server?: T_Server;
+	servers: T_Server[];
 	setSelectedServer: Function;
+	setUpdate: Function;
 	user?: T_User;
 }
 
@@ -35,7 +37,7 @@ export default function SideBar(props: SideBarProps) {
 						<Text style={{ color: "white" }}>No channels</Text>
 					</View>
 				)}
-				<ServerList setServer={props.setSelectedServer} selectedServer={props.server} />
+				<ServerList setServer={props.setSelectedServer} selectedServer={props.server} servers={props.servers} setUpdate={props.setUpdate} />
 			</View>
 			<UserCard user={props.user} />
 		</View>

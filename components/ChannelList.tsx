@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { View, FlatList, Pressable, Text } from "react-native";
 import User from "../types/user";
 import Server from "../types/server";
@@ -12,19 +11,6 @@ interface ChanneListProps {
 }
 
 export default function ChannelList(props: ChanneListProps) {
-	const [channels, setChannels] = useState<Channel[]>([]);
-	const getChannels = async () => {
-		const request = await fetch(`${props.server.ip}/channels/get`);
-		const json = (await request.json()) as Channel[];
-
-		setChannels(json);
-		if (json.length > 0) props.setSelected(json[0]);
-	};
-
-	useEffect(() => {
-		getChannels();
-	}, []);
-
 	const handleChange = (channel: Channel) => {
 		props.setSelected(channel);
 	};
@@ -42,9 +28,9 @@ export default function ChannelList(props: ChanneListProps) {
 				}}>
 				<Text style={{ color: "white", fontSize: 24 }}>{props.server.title}</Text>
 			</View>
-			{channels ? (
+			{props.server.channels && props.server.channels.length > 0 ? (
 				<FlatList
-					data={channels}
+					data={props.server.channels}
 					renderItem={(item) => {
 						return (
 							<ChannelCard
@@ -57,7 +43,11 @@ export default function ChannelList(props: ChanneListProps) {
 						);
 					}}
 				/>
-			) : null}
+			) : (
+				<View style={{ justifyContent: "center", alignItems: "center", flex: 1, width: "100%" }}>
+					<Text style={{ color: "white" }}>No channel found</Text>
+				</View>
+			)}
 		</View>
 	);
 }

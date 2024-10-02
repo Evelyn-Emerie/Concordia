@@ -1,34 +1,21 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useRef, useEffect } from "react";
 import { View, Animated, Easing, Pressable, Text, Image } from "react-native";
-import { LocalSettings } from "../handlers/storage";
+import { LocalSettings, remServer } from "../handlers/storage";
 import AddServerModal from "./modals/addServer";
 import Server from "../types/server";
 
-export default function ServerList(props: { setServer: Function; selectedServer?: Server }) {
-	const [serverList, setServerList] = useState<Server[]>([]);
-
+export default function ServerList(props: { setServer: Function; selectedServer?: Server; servers: Server[]; setUpdate: Function }) {
 	const handleServerSelect = (server: Server) => {
 		props.setServer(server);
 	};
 
-	useEffect(() => {
-		const load = async () => {
-			const settings = await LocalSettings.get();
-			if (settings.servers) {
-				setServerList(settings.servers);
-				props.setServer(settings.servers[0]);
-			}
-		};
-		load();
-	}, []);
-
 	return (
 		<View style={{ marginHorizontal: 5 }}>
-			{serverList.map((server) => {
-				return <ServerIcon key={server.id} onPressed={handleServerSelect} server={server} selected={props.selectedServer ? props.selectedServer.id == server.id : false} />;
+			{props.servers.map((server) => {
+				return <ServerIcon key={server.id} onPressed={handleServerSelect} server={server} selected={props.selectedServer ? props.selectedServer.id == server.id : false} setUpdate={props.setUpdate} />;
 			})}
-			<AddServer />
+			<AddServer setUpdate={props.setUpdate} />
 		</View>
 	);
 }
@@ -37,6 +24,7 @@ interface ServerIconProps {
 	server: Server;
 	selected?: boolean;
 	onPressed?: Function;
+	setUpdate: Function;
 }
 
 function ServerIcon(props: ServerIconProps) {
@@ -57,15 +45,15 @@ function ServerIcon(props: ServerIconProps) {
 		animateBorderRadius(props.selected ? 5 : 20);
 	}, [props.selected]);
 
-	useEffect(() => {}, [props.server]);
-
 	return (
 		<Pressable
 			onPress={() => {
 				props.onPressed ? props.onPressed(props.server) : null;
 			}}
 			onLongPress={() => {
-				// updateServerData();
+				remServer(props.server).then(() => {
+					props.setUpdate();
+				});
 			}}
 			onPointerEnter={() => {
 				setHover(true);
@@ -127,14 +115,14 @@ function ServerIcon(props: ServerIconProps) {
 	);
 }
 
-function AddServer() {
+function AddServer(props: { setUpdate: Function }) {
 	const [modalVisible, setModalVisible] = useState(false);
 	return (
 		<Pressable
 			onPress={() => {
 				setModalVisible(true);
 			}}>
-			<AddServerModal visible={modalVisible} toggle={setModalVisible} />
+			<AddServerModal visible={modalVisible} toggle={setModalVisible} setUpdate={props.setUpdate} />
 			<View
 				style={{
 					width: 50,
