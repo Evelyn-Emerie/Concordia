@@ -29,7 +29,7 @@ export default function MainWindow() {
 	}, []);
 
 	useEffect(() => {
-		setSelectedChannel(selectedServer?.channels[0] ?? undefined);
+		setSelectedChannel(selectedServer?.channels ? selectedServer!.channels[0] : undefined);
 	}, [selectedServer]);
 
 	useEffect(() => {
