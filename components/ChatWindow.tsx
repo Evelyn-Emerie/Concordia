@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, memo } from "react";
 import { Linking, Platform, Pressable, Text, useWindowDimensions, View, FlatList, Image, Dimensions, ScaledSize } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import AutoExpandingTextInput from "./AutoTextInput";
@@ -72,6 +72,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 				<Text style={{ color: "white", textAlign: "center" }}>No selected channel</Text>
 			</View>
 		);
+	console.log("RENDERING CHATWINDOW");
 
 	return (
 		<View style={{ flex: 1, width: "100%" }}>
@@ -81,12 +82,13 @@ export default function ChatWindow(props: ChatWindowProps) {
 			<View style={{ flex: 1 }} />
 			{isLoading ? (
 				<Loading />
-			) : data.length > 0 ? (
+			) : data.length > 1 ? (
 				<View style={{ maxHeight: height - 120 }}>
 					<FlatList
 						ref={superRef}
 						style={{ width: "98%", marginHorizontal: "auto" }}
 						data={[...data].reverse()}
+						keyExtractor={(item) => item.id}
 						renderItem={({ item, index }) => {
 							let isLastInGroup = true;
 							try {
@@ -100,6 +102,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 							} catch (e) {
 								isLastInGroup = true;
 							}
+
 							return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} dimensions={dimensions} />;
 						}}
 						onStartReached={() => {
@@ -147,7 +150,7 @@ interface MessageCardProps {
 	dimensions: ScaledSize;
 }
 
-const MessageCard = (props: MessageCardProps) => {
+const MessageCard = memo((props: MessageCardProps) => {
 	if (!props.message) return null;
 
 	const timestamp = getTime(parseInt(props.message.id));
@@ -171,8 +174,20 @@ const MessageCard = (props: MessageCardProps) => {
 			</Pressable>
 		</View>
 	);
-};
+});
 
+const fetchGif = async (id: string, origin: "T" | "G", setGif: Function, setError: Function, serverIP: String) => {
+	try {
+		const response = await fetch(`${serverIP}/gifs?id=${id}&origin=${origin}`);
+		const json = await response.json();
+		if (response.status !== 200) throw new Error("Failed to fetch");
+		console.log("setting gif");
+
+		setGif(json);
+	} catch (e) {
+		setError(true);
+	}
+};
 interface ProcessedMessageProps {
 	text: string;
 	server: Server;
@@ -185,45 +200,18 @@ type Gif = {
 	height: number | undefined;
 };
 
-const ProcessedMessage = (props: ProcessedMessageProps) => {
+const ProcessedMessage = memo((props: ProcessedMessageProps) => {
 	const URL_REGEX = /(http|https|HTTP|HTTPS):\/\/[\w_-]\S*/g;
 	const [gif, setGif] = useState<Gif | null>(null);
 	const [error, setError] = useState<boolean>(false);
 
 	useEffect(() => {
-		const fetchTenor = async (id: string, server: Server) => {
-			try {
-				const response = await fetch(`${server.ip}/gifs?id=${id}&origin=T`);
-				const json = await response.json();
-				if (response.status != 200) return setError(true);
-				setGif(json);
-			} catch (e) {
-				setError(true);
-			}
-		};
+		const matchTenor = props.text.match(/\[tenor]\(([^)]+)\)/);
+		const matchGiphy = props.text.match(/\[giphy]\(([^)]+)\)/);
 
-		const fetchGiphy = async (id: string, server: Server) => {
-			try {
-				const response = await fetch(`${server.ip}/gifs?id=${id}&origin=G`);
-				const json = await response.json();
-
-				if (response.status != 200) return setError(true);
-				setGif(json);
-			} catch (e) {
-				setError(true);
-			}
-		};
-
-		if (props.text.includes("[tenor](")) {
-			const id = props.text.split("(")[1].split(")")[0];
-			fetchTenor(id, props.server);
-		}
-
-		if (props.text.includes("[giphy](")) {
-			const id = props.text.split("(")[1].split(")")[0];
-			fetchGiphy(id, props.server);
-		}
-	}, [props.text]);
+		if (matchTenor) fetchGif(matchTenor[1], "T", setGif, setError, props.server.ip);
+		if (matchGiphy) fetchGif(matchGiphy[1], "G", setGif, setError, props.server.ip);
+	}, [props.text, props.server, !gif, !error]);
 
 	if (gif) {
 		let width = 250,
@@ -233,7 +221,7 @@ const ProcessedMessage = (props: ProcessedMessageProps) => {
 			else width = gif.width;
 			height = gif.height;
 		}
-		return <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory-disk"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
+		return <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
 	}
 
 	if (error) {
@@ -258,4 +246,4 @@ const ProcessedMessage = (props: ProcessedMessageProps) => {
 			)}
 		</Text>
 	);
-};
+});
