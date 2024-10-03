@@ -2,7 +2,7 @@ const { app, BrowserWindow } = require('electron');
 const express = require('express');
 const path = require('node:path');
 const cors = require('cors');
-const settings = require('./handlers/settings');
+const settings = require('./handlers/settings.js');
 
 const localserver = express();
 const PORT = require('./LocalServer.json').port;
