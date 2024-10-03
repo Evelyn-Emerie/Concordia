@@ -1,30 +1,45 @@
 import { View, Text } from "react-native";
-import ChannelList, { Channel } from "./ChannelList";
-import ServerList, { Server } from "./ServerList";
+import ChannelList from "./ChannelList";
+import ServerList from "./ServerList";
+import UserCard from "./UserCard";
+import T_Channel from "../types/channel";
+import T_Server from "../types/server";
+import T_User from "../types/user";
 
 interface SideBarProps {
-	selectedChannel?: Channel;
+	selectedChannel?: T_Channel;
 	setSelectedChannel: Function;
-	server?: Server;
+	server?: T_Server;
+	servers: T_Server[];
 	setSelectedServer: Function;
+	setUpdate: Function;
+	user?: T_User;
 }
 
 export default function SideBar(props: SideBarProps) {
 	return (
 		<View
 			style={{
-				flexDirection: "row-reverse",
-				width: 235,
+				width: 200,
 				height: "100%",
 			}}>
-			{props.server ? (
-				<ChannelList selected={props.selectedChannel} setSelected={props.setSelectedChannel} server={props.server} />
-			) : (
-				<View style={{ width: "100%", flex: 1, justifyContent: "center", alignItems: "center" }}>
-					<Text style={{ color: "white" }}>No channels</Text>
-				</View>
-			)}
-			<ServerList setServer={props.setSelectedServer} selectedServer={props.server} />
+			<View style={{ flexDirection: "row-reverse", width: "100%", flex: 1 }}>
+				{props.server ? (
+					<ChannelList selected={props.selectedChannel} setSelected={props.setSelectedChannel} server={props.server} user={props.user} />
+				) : (
+					<View
+						style={{
+							width: "100%",
+							flex: 1,
+							justifyContent: "center",
+							alignItems: "center",
+						}}>
+						<Text style={{ color: "white" }}>No channels</Text>
+					</View>
+				)}
+				<ServerList setServer={props.setSelectedServer} selectedServer={props.server} servers={props.servers} setUpdate={props.setUpdate} />
+			</View>
+			<UserCard user={props.user} />
 		</View>
 	);
 }

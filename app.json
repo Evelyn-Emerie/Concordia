@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ChatThingieClient",
-    "slug": "ChatThingieClient",
+    "name": "Concordia",
+    "slug": "Concordia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.Concordia.Concordia"
     },
     "web": {
       "bundler": "metro",
@@ -31,6 +32,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "433e51de-5cd7-416e-ac7b-94d47e64cf26"
+      }
     }
   }
 }

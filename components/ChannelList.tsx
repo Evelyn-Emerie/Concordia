@@ -1,32 +1,41 @@
-import { useState, useEffect } from "react";
 import { View, FlatList, Pressable, Text } from "react-native";
-import { Server } from "./ServerList";
+import User from "../types/user";
+import Server from "../types/server";
+import Channel from "../types/channel";
+import { useEffect, useState } from "react";
 
 interface ChanneListProps {
 	selected?: Channel;
 	setSelected: Function;
 	server: Server;
+	user?: User;
 }
 
 export default function ChannelList(props: ChanneListProps) {
-	const [channels, setChannels] = useState<Channel[]>([]);
-	const getChannels = async () => {
-		const request = await fetch(`${props.server.ip}/channels/get`);
-		const json = (await request.json()) as Channel[];
+	const [channels, setChannels] = useState<Channel[]>(props.server.channels ?? []);
 
-		setChannels(json);
+	const getChannels = async () => {
+		try {
+			const request = await fetch(`${props.server.ip}/channels/get`);
+			const json = (await request.json()) as Channel[];
+
+			setChannels(json);
+			if (json.length > 0) props.setSelected(json[0]);
+		} catch (e) {
+			setChannels([]);
+		}
 	};
 
 	useEffect(() => {
 		getChannels();
-	}, []);
+	}, [props.server]);
 
 	const handleChange = (channel: Channel) => {
 		props.setSelected(channel);
 	};
 
 	return (
-		<View style={{ paddingHorizontal: 10 }}>
+		<View style={{ paddingHorizontal: 5, flex: 1 }}>
 			<View
 				style={{
 					height: 50,
@@ -37,7 +46,7 @@ export default function ChannelList(props: ChanneListProps) {
 				}}>
 				<Text style={{ color: "white", fontSize: 24 }}>{props.server.title}</Text>
 			</View>
-			{channels ? (
+			{channels.length > 0 ? (
 				<FlatList
 					data={channels}
 					renderItem={(item) => {
@@ -52,15 +61,14 @@ export default function ChannelList(props: ChanneListProps) {
 						);
 					}}
 				/>
-			) : null}
+			) : (
+				<View style={{ justifyContent: "center", alignItems: "center", flex: 1, width: "100%" }}>
+					<Text style={{ color: "white" }}>No channel found</Text>
+				</View>
+			)}
 		</View>
 	);
 }
-
-export type Channel = {
-	id: number;
-	title: string;
-};
 
 interface ChannelCardProps {
 	channel: Channel;

@@ -10,8 +10,10 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
-Secrets.ts
-
+electron/Concordia-darwin-x64
+electron/Concordia-linux-x64
+electron/Concordia-win32-x64
+package-lock.json
 # macOS
 .DS_Store
 

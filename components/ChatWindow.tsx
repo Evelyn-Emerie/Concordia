@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Image, Linking, Platform, Pressable, Text, useWindowDimensions, View, FlatList } from "react-native";
+import React, { useEffect, useRef, useState, memo } from "react";
+import { Linking, Platform, Pressable, Text, useWindowDimensions, View, FlatList, Image, Dimensions, ScaledSize } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import AutoExpandingTextInput from "./AutoTextInput";
 import Loading from "../components/loading";
 import { getMessages, sendMessage } from "../handlers/chat";
 import { Colors } from "../constants/Colors";
-import { Server } from "./ServerList";
-import { Channel } from "./ChannelList";
-import { Secrets } from "@/constants/Secrets";
+import Server from "../types/server";
+import Channel from "../types/channel";
+import { Image as ExpoImage } from "expo-image";
 
 export type Message = {
 	id: string;
@@ -30,6 +30,7 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow(props: ChatWindowProps) {
+	const dimensions = Dimensions.get("window");
 	const { height } = useWindowDimensions();
 	const [isLoading, setLoading] = useState(true);
 	const [data, setData] = useState<Message[]>([]);
@@ -80,24 +81,29 @@ export default function ChatWindow(props: ChatWindowProps) {
 			<View style={{ flex: 1 }} />
 			{isLoading ? (
 				<Loading />
-			) : data.length > 0 ? (
+			) : data.length > 1 ? (
 				<View style={{ maxHeight: height - 120 }}>
 					<FlatList
 						ref={superRef}
 						style={{ width: "98%", marginHorizontal: "auto" }}
 						data={[...data].reverse()}
+						keyExtractor={(item) => item.id}
 						renderItem={({ item, index }) => {
 							let isLastInGroup = true;
-							if (index > 0) {
-								const previousItem = data[data.length - 1 - index]; // Adjust index for reversed array
-								const currentItem = data[data.length - index];
+							try {
+								if (index > 0) {
+									const previousItem = data[data.length - 1 - index]; // Adjust index for reversed array
+									const currentItem = data[data.length - index];
 
-								const sameDay = new Date(data[data.length - index].id).toLocaleDateString() == new Date(data[data.length - 1 - index].id).toLocaleDateString(); // same day?
-								isLastInGroup = currentItem.user.id != previousItem.user.id || !sameDay;
+									const sameDay = new Date(data[data.length - index].id).toLocaleDateString() == new Date(data[data.length - 1 - index].id).toLocaleDateString(); // same day?
+									isLastInGroup = currentItem.user.id != previousItem.user.id || !sameDay;
+								}
+							} catch (e) {
+								isLastInGroup = true;
 							}
-							return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} />;
+
+							return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} dimensions={dimensions} />;
 						}}
-						refreshing={true}
 						onStartReached={() => {
 							console.log("end!");
 							// TODO implement loading more messages when reaching end
@@ -140,9 +146,10 @@ interface MessageCardProps {
 	isLastInGroup: boolean;
 	server: Server;
 	index?: number;
+	dimensions: ScaledSize;
 }
 
-const MessageCard = (props: MessageCardProps) => {
+const MessageCard = memo((props: MessageCardProps) => {
 	if (!props.message) return null;
 
 	const timestamp = getTime(parseInt(props.message.id));
@@ -152,60 +159,87 @@ const MessageCard = (props: MessageCardProps) => {
 	return (
 		<View style={{ minHeight: 20, width: "100%", paddingHorizontal: 10, paddingTop: props.isLastInGroup ? 2 : 0, marginTop: props.isLastInGroup ? 10 : 0 }}>
 			{props.isLastInGroup && (
-				<View style={{ flexDirection: "row", alignItems: "flex-end", marginBottom: 5 }}>
+				<View style={{ flexDirection: "row", alignItems: "flex-end" }}>
 					<View style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5, overflow: "hidden" }}>{props.message.user.profilePicture ? <Image source={{ uri: `${props.server.ip}/users/pfp/${props.message.user.profilePicture}`, width: 30, height: 30 }} /> : null}</View>
 					<Text style={{ color: "#fff", fontWeight: "500", marginBottom: 5 }}>{props.message.user.nickname ?? props.message.user.username}</Text>
 					<Text style={{ color: "#ddd", fontSize: 10, marginBottom: 5 }}> {timestamp}</Text>
 				</View>
 			)}
 			<Pressable style={{ cursor: "auto" }} onLongPress={() => Platform.OS != "web" && copyToClipboard(props.message.text)} onHoverIn={() => setHover(true)} onHoverOut={() => setHover(false)}>
-				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text" }}>
-					<ProcessedMessage text={props.message.text} />
+				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text", padding: 2, borderRadius: 2 }}>
+					<ProcessedMessage text={props.message.text} server={props.server} dimensions={props.dimensions} />
 					{hover && <Text style={{ color: "white", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text>}
 				</Text>
 			</Pressable>
 		</View>
 	);
-};
+});
 
+const fetchGif = async (id: string, origin: "T" | "G", setGif: Function, setError: Function, serverIP: String) => {
+	try {
+		const response = await fetch(`${serverIP}/gifs?id=${id}&origin=${origin}`);
+		const json = await response.json();
+		if (response.status !== 200) throw new Error("Failed to fetch");
+		console.log("setting gif");
+
+		setGif(json);
+	} catch (e) {
+		setError(true);
+	}
+};
 interface ProcessedMessageProps {
 	text: string;
+	server: Server;
+	dimensions: ScaledSize;
 }
 
-const ProcessedMessage = ({ text }: ProcessedMessageProps) => {
+type Gif = {
+	source: string;
+	width: number | undefined;
+	height: number | undefined;
+};
+
+const ProcessedMessage = memo((props: ProcessedMessageProps) => {
 	const URL_REGEX = /(http|https|HTTP|HTTPS):\/\/[\w_-]\S*/g;
-	const [gifUrl, setGifUrl] = useState<string | null>(null);
+	const [gif, setGif] = useState<Gif | null>(null);
 	const [error, setError] = useState<boolean>(false);
 
 	useEffect(() => {
-		const fetchGif = async (id: string) => {
-			try {
-				const response = await fetch(`https://tenor.googleapis.com/v2/posts?key=${Secrets.Tenor}&media_filter=gif&ids=${id}`);
-				const json = await response.json();
-				setGifUrl(json.results[0].media_formats.gif.url);
-			} catch (e) {
-				setError(true);
+		const matchTenor = props.text.match(/\[tenor]\(([^)]+)\)/);
+		const matchGiphy = props.text.match(/\[giphy]\(([^)]+)\)/);
+
+		if (matchTenor) fetchGif(matchTenor[1], "T", setGif, setError, props.server.ip);
+		if (matchGiphy) fetchGif(matchGiphy[1], "G", setGif, setError, props.server.ip);
+	}, [props.text, props.server, !gif, !error]);
+
+	if (gif) {
+		let width = 250,
+			height = 250;
+		if (gif.width && gif.height) {
+			console.log(props.dimensions.width);
+			console.log(gif.width);
+			let limit = 50;
+			if (Platform.OS == "web") limit = 250;
+			if (gif.width > props.dimensions.width - limit) {
+				width = props.dimensions.width - limit;
+				const aspectRatio = gif.height / gif.width;
+				height = width * aspectRatio;
+			} else {
+				width = gif.width;
+				height = gif.height;
 			}
-		};
-
-		if (text.includes("[gif](")) {
-			const id = text.split("(")[1].split(")")[0];
-			fetchGif(id);
 		}
-	}, [text]);
-
-	if (gifUrl) {
-		return <Image source={{ uri: gifUrl }} style={{ width: 200, height: 200, marginTop: 2, marginLeft: 2, borderRadius: 5 }} />;
+		return <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
 	}
 
 	if (error) {
 		return <Text style={{ color: "red" }}>Failed to load gif</Text>;
 	}
 
-	const URLs = text.match(URL_REGEX);
-	const parts = text.split(" ");
+	const URLs = props.text.match(URL_REGEX);
+	const parts = props.text.split(" ");
 
-	if (!URLs) return <Text>{text}</Text>;
+	if (!URLs) return <Text>{props.text}</Text>;
 
 	return (
 		<Text>
@@ -220,4 +254,4 @@ const ProcessedMessage = ({ text }: ProcessedMessageProps) => {
 			)}
 		</Text>
 	);
-};
+});

@@ -1,8 +1,8 @@
 import { io } from "socket.io-client";
 import { Message } from "../components/ChatWindow";
 import { ChatCache } from "./chat";
-import { Server } from "@/components/ServerList";
-import { Channel } from "@/components/ChannelList";
+import Channel from "../types/channel";
+import Server from "../types/server";
 
 class Socket {
 	static instance: any = null;
@@ -11,9 +11,6 @@ class Socket {
 		if (!Socket.instance) {
 			Socket.instance = io(`${server.ip}`, {
 				secure: true,
-				// reconnection: true,
-				// rejectUnauthorized: false,
-
 				transports: ["websocket"],
 			});
 		}
@@ -27,8 +24,6 @@ const getSocket = async (setNewMessage: Function, activeChannel: Channel, server
 
 	socket.off("update");
 	socket.on("update", async (data: Message) => {
-		console.log(data);
-
 		if (!newMessage || newMessage.id != data.id) {
 			const oldMessages = await ChatCache.get(data.channel);
 			if (oldMessages) ChatCache.set(data.channel, [data, ...oldMessages]);

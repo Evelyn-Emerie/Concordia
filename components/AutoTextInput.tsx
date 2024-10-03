@@ -41,7 +41,7 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 					//! Purely for WEB only
 					if (Platform.OS != "web") return;
 					// @ts-ignore
-					if (!event.shiftKey && event.code == "Enter") {
+					if (!event.shiftKey && event.nativeEvent.key == "Enter") {
 						//If not pressing shift + Enter but ONLY Enter
 						event.preventDefault(); // Prevent space being added to text input
 						if (props.text.trim().length > 0) {

@@ -1,9 +1,10 @@
-import { Button, View } from "react-native";
+import { View } from "react-native";
 import SettingsTextInput from "../../components/StyledTextInput";
 import ServerPageLabel from "../../components/ServerPageLabel";
 import { useEffect, useState } from "react";
-import { User, UserType } from "../../handlers/storage";
+import { User } from "../../handlers/storage";
 import Loading from "../../components/loading";
+import T_User from "../../types/user";
 
 async function loadData(setUser: Function) {
 	const user = await User.getUserObject();
@@ -11,7 +12,7 @@ async function loadData(setUser: Function) {
 }
 
 export default function AccountSettingsPage() {
-	const [user, setUser] = useState<UserType>();
+	const [user, setUser] = useState<T_User>();
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 

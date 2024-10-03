@@ -3,8 +3,8 @@ import StyledTextInput from "../StyledTextInput";
 import { Colors } from "@/constants/Colors";
 import StyledButton from "../inputs/StyledButton";
 import { useRef, useState } from "react";
-import { Server } from "../ServerList";
-import { addServer, LocalSettings, User } from "@/handlers/storage";
+import { addServer, LocalSettings, User } from "../../handlers/storage";
+import Server from "../../types/server";
 
 type ServerInfo = {
 	title: string;
@@ -12,7 +12,7 @@ type ServerInfo = {
 	iconURL: string;
 };
 
-export default function AddServerModal(props: { toggle: Function; visible: boolean }) {
+export default function AddServerModal(props: { toggle: Function; visible: boolean; setUpdate: Function }) {
 	const [ip, setIp] = useState("https://");
 	const [password, setPassword] = useState("");
 	const [username, setUsername] = useState("");
@@ -72,6 +72,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 					title: json.server.title,
 					ip: ip,
 					iconURL: json.server.iconURL,
+					channels: json.server.channels,
 				};
 
 				await addServer(server);
@@ -79,6 +80,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 				setUsername("");
 				setPassword("");
 				props.toggle(false);
+				props.setUpdate(true);
 			};
 			register();
 		} catch (e) {
@@ -121,6 +123,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 					title: json.server.title,
 					ip: ip,
 					iconURL: json.server.iconURL,
+					channels: json.server.channels,
 				};
 
 				await addServer(server);
@@ -128,7 +131,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 				setIp("https://");
 				setUsername("");
 				setPassword("");
-
+				props.setUpdate(true);
 				props.toggle(false);
 			};
 			login();
@@ -183,6 +186,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 							}}
 							width={300}
 						/>
+						<View style={{ height: 10 }} />
 						<StyledTextInput
 							label="Username"
 							text={username}
@@ -193,6 +197,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 							width={300}
 							camelCase
 						/>
+						<View style={{ height: 10 }} />
 						<StyledTextInput
 							label="Password"
 							text={password}

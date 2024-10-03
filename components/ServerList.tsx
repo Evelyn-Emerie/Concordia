@@ -1,55 +1,21 @@
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useState, useRef, useEffect } from "react";
 import { View, Animated, Easing, Pressable, Text, Image } from "react-native";
-import { LocalSettings, updateServerData } from "../handlers/storage";
+import { LocalSettings, remServer } from "../handlers/storage";
 import AddServerModal from "./modals/addServer";
+import Server from "../types/server";
 
-export type Server = {
-	id: number;
-	accessToken: string;
-	title: string;
-	ip: string;
-	iconURL?: string;
-};
-
-export default function ServerList(props: { setServer: Function; selectedServer?: Server }) {
-	const [serverList, setServerList] = useState<Server[]>([]);
-
+export default function ServerList(props: { setServer: Function; selectedServer?: Server; servers: Server[]; setUpdate: Function }) {
 	const handleServerSelect = (server: Server) => {
 		props.setServer(server);
 	};
 
-	useEffect(() => {
-		const load = async () => {
-			const settings = await LocalSettings.get();
-			if (settings.servers) setServerList(settings.servers);
-		};
-		load();
-	}, []);
-
-	const router = useRouter();
-
 	return (
 		<View style={{ marginHorizontal: 5 }}>
-			{serverList.map((server) => {
-				return <ServerIcon key={server.id} onPressed={handleServerSelect} server={server} selected={props.selectedServer ? props.selectedServer.id == server.id : false} />;
+			{props.servers.map((server) => {
+				return <ServerIcon key={server.id} onPressed={handleServerSelect} server={server} selected={props.selectedServer ? props.selectedServer.id == server.id : false} setUpdate={props.setUpdate} />;
 			})}
-			<AddServer />
-			<View style={{ flex: 1 }} />
-			<Pressable
-				onPress={() => {
-					router.push("/settings/settings");
-				}}>
-				<View
-					style={{
-						width: 40,
-						height: 40,
-						marginBottom: 10,
-					}}>
-					<MaterialIcons name="settings" size={40} color={"#ddd"} />
-				</View>
-			</Pressable>
+			<AddServer setUpdate={props.setUpdate} />
 		</View>
 	);
 }
@@ -58,18 +24,18 @@ interface ServerIconProps {
 	server: Server;
 	selected?: boolean;
 	onPressed?: Function;
+	setUpdate: Function;
 }
 
 function ServerIcon(props: ServerIconProps) {
 	const [hover, setHover] = useState(false);
-	// console.log(props.selected);
 
 	const borderRadius = useRef(new Animated.Value(props.selected ? 5 : 20)).current;
 
 	const animateBorderRadius = (toValue: number) => {
 		Animated.timing(borderRadius, {
 			toValue,
-			duration: 100, // Adjust the duration as needed
+			duration: 100,
 			easing: Easing.inOut(Easing.ease),
 			useNativeDriver: false, // Border radius does not support native driver
 		}).start();
@@ -79,15 +45,15 @@ function ServerIcon(props: ServerIconProps) {
 		animateBorderRadius(props.selected ? 5 : 20);
 	}, [props.selected]);
 
-	useEffect(() => {}, [props.server]);
-
 	return (
 		<Pressable
 			onPress={() => {
 				props.onPressed ? props.onPressed(props.server) : null;
 			}}
 			onLongPress={() => {
-				updateServerData();
+				remServer(props.server).then(() => {
+					props.setUpdate();
+				});
 			}}
 			onPointerEnter={() => {
 				setHover(true);
@@ -108,7 +74,7 @@ function ServerIcon(props: ServerIconProps) {
 						alignItems: "center",
 						backgroundColor: "#101010",
 						borderRadius: 10,
-						maxWidth: 150,
+						width: 150,
 						paddingHorizontal: 10,
 					}}>
 					<View
@@ -127,7 +93,7 @@ function ServerIcon(props: ServerIconProps) {
 							marginTop: -5, // Center the triangle vertically
 						}}
 					/>
-					<Text style={{ color: "white", flexWrap: "nowrap" }} numberOfLines={1} ellipsizeMode="tail">
+					<Text style={{ color: "white", flexWrap: "nowrap", fontSize: 20 }} numberOfLines={1} ellipsizeMode="tail">
 						{props.server.title}
 					</Text>
 				</View>
@@ -149,14 +115,14 @@ function ServerIcon(props: ServerIconProps) {
 	);
 }
 
-function AddServer() {
+function AddServer(props: { setUpdate: Function }) {
 	const [modalVisible, setModalVisible] = useState(false);
 	return (
 		<Pressable
 			onPress={() => {
 				setModalVisible(true);
 			}}>
-			<AddServerModal visible={modalVisible} toggle={setModalVisible} />
+			<AddServerModal visible={modalVisible} toggle={setModalVisible} setUpdate={props.setUpdate} />
 			<View
 				style={{
 					width: 50,

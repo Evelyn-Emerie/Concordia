@@ -1,9 +1,9 @@
-import { Server } from "@/components/ServerList";
+import T_Server from "../types/server";
 import { Message } from "../components/ChatWindow";
 
 const ChatCache = new Map();
 
-const getMessages = async (channelId: number, server: Server) => {
+const getMessages = async (channelId: number, server: T_Server) => {
 	const cached = await ChatCache.get(channelId);
 
 	if (cached) return cached;
@@ -32,10 +32,9 @@ const clearCache = (id?: number) => {
 
 export { ChatCache, getMessages, clearCache, sendMessage };
 
-const sendMessage = async (setText: Function, text: string, activeChannel: number, server: Server) => {
+const sendMessage = async (setText: Function, text: string, activeChannel: number, server: T_Server) => {
 	try {
 		setText("");
-
 		const res = await fetch(`${server.ip}/channels/${activeChannel}/messages`, {
 			method: "POST",
 			headers: {

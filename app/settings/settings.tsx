@@ -8,6 +8,8 @@ import AccountSettingsPage from "./account";
 import DesktopSettings from "./desktop";
 import { LocalSettings, TypeLocalSettings } from "../../handlers/storage";
 import Loading from "../../components/loading";
+import { Colors } from "../../constants/Colors";
+import UISettings from "./UI";
 
 let preLoadedSettings: TypeLocalSettings;
 
@@ -20,13 +22,25 @@ const settings = [
 				title: "Account",
 				view: <AccountSettingsPage key={0} />,
 			},
+			{
+				index: 1,
+				title: "UI/UX",
+				view: (
+					<UISettings
+						key={1}
+						preload={() => {
+							return preLoadedSettings;
+						}}
+					/>
+				),
+			},
 		],
 	},
 ];
 
 if (Platform.OS == "web") {
 	settings[0].settings.push({
-		index: 1,
+		index: settings.length + 1,
 		title: "Desktop only",
 		view: (
 			<DesktopSettings
@@ -55,7 +69,7 @@ export default function SettingsScreen() {
 		<GestureHandlerRootView>
 			<SafeAreaView
 				style={{
-					backgroundColor: "#161616",
+					backgroundColor: Colors.dark.background,
 					flex: 1,
 					flexDirection: "row",
 				}}>
