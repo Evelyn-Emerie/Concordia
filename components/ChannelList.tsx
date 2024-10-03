@@ -12,7 +12,7 @@ interface ChanneListProps {
 }
 
 export default function ChannelList(props: ChanneListProps) {
-	const [channels, setChannels] = useState<Channel[]>(props.server.channels);
+	const [channels, setChannels] = useState<Channel[]>(props.server.channels ?? []);
 
 	const getChannels = async () => {
 		try {
@@ -35,7 +35,7 @@ export default function ChannelList(props: ChanneListProps) {
 	};
 
 	return (
-		<View style={{ paddingHorizontal: 10 }}>
+		<View style={{ paddingHorizontal: 5, flex: 1 }}>
 			<View
 				style={{
 					height: 50,
@@ -43,7 +43,6 @@ export default function ChannelList(props: ChanneListProps) {
 					justifyContent: "center",
 					marginBottom: 10,
 					marginLeft: 5,
-					width: 200,
 				}}>
 				<Text style={{ color: "white", fontSize: 24 }}>{props.server.title}</Text>
 			</View>

@@ -30,7 +30,7 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow(props: ChatWindowProps) {
-	const dimensions = Dimensions.get("screen");
+	const dimensions = Dimensions.get("window");
 	const { height } = useWindowDimensions();
 	const [isLoading, setLoading] = useState(true);
 	const [data, setData] = useState<Message[]>([]);
@@ -216,9 +216,18 @@ const ProcessedMessage = memo((props: ProcessedMessageProps) => {
 		let width = 250,
 			height = 250;
 		if (gif.width && gif.height) {
-			if (gif.width > props.dimensions.width - 75) width = props.dimensions.width - 75;
-			else width = gif.width;
-			height = gif.height;
+			console.log(props.dimensions.width);
+			console.log(gif.width);
+			let limit = 50;
+			if (Platform.OS == "web") limit = 250;
+			if (gif.width > props.dimensions.width - limit) {
+				width = props.dimensions.width - limit;
+				const aspectRatio = gif.height / gif.width;
+				height = width * aspectRatio;
+			} else {
+				width = gif.width;
+				height = gif.height;
+			}
 		}
 		return <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
 	}

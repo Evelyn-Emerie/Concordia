@@ -95,7 +95,8 @@ const remServer = async (server: Server) => {
 		}
 	});
 
-	localSettings.servers = newServers;
+	// localSettings.servers = newServers;
+	localSettings.servers = [];
 
 	if (Platform.OS == "web") {
 		const PORT = require("../electron/LocalServer.json").port;

@@ -20,7 +20,7 @@ export default function SideBar(props: SideBarProps) {
 	return (
 		<View
 			style={{
-				width: 285,
+				width: 200,
 				height: "100%",
 			}}>
 			<View style={{ flexDirection: "row-reverse", width: "100%", flex: 1 }}>
