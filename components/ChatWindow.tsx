@@ -72,7 +72,6 @@ export default function ChatWindow(props: ChatWindowProps) {
 				<Text style={{ color: "white", textAlign: "center" }}>No selected channel</Text>
 			</View>
 		);
-	console.log("RENDERING CHATWINDOW");
 
 	return (
 		<View style={{ flex: 1, width: "100%" }}>
