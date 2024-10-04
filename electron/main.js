@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Tray, Menu } = require('electron');
 const express = require('express');
 const path = require('node:path');
 const cors = require('cors');
@@ -23,6 +23,7 @@ localserver.listen(PORT, () => {
 });
 
 let myWindow = null;
+let tray = null;
 
 // Function to create the Electron window
 function createWindow() {
@@ -53,6 +54,11 @@ function createWindow() {
     win.on('page-title-updated', (event) => {
         event.preventDefault();
     });
+
+    win.on('close', (event) => {
+        event.preventDefault();
+        win.hide();
+    })
 
     win.webContents.setWindowOpenHandler(({ url }) => {
         if (settings.getSettings().LinkInNative)
@@ -92,15 +98,20 @@ if (!gotTheLock) {
                 createWindow();
             }
         });
+
+        tray = new Tray(path.join(__dirname, 'Concordia.png'));
+        const contextMenu = Menu.buildFromTemplate([
+            { label: 'Quit', click: () => { app.exit() } }
+        ])
+        tray.setToolTip('Concordia')
+        tray.on('click', () => {
+            myWindow.show();
+        })
+        tray.setContextMenu(contextMenu)
     });
 }
 
-// Quit when all windows are closed
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
-});
+
 
 settings.loadSettings();
 settings.handleUpdates(localserver);
