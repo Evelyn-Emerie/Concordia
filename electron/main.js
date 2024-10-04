@@ -7,12 +7,10 @@ const settings = require('./handlers/settings.js');
 const localserver = express();
 const PORT = require('./LocalServer.json').port;
 
-
 // Serve static files from the 'dist' directory
 localserver.use(cors());
 localserver.use(express.static(path.join(__dirname, 'dist')));
 localserver.use(express.json());
-
 
 // Route to serve the index.html
 localserver.get('*', (req, res) => {
@@ -24,9 +22,11 @@ localserver.listen(PORT, () => {
     console.log(`Listening on http://localhost:${PORT}`);
 });
 
-// Create the Electron window
+let myWindow = null;
+
+// Function to create the Electron window
 function createWindow() {
-    const win = new BrowserWindow({
+    myWindow = new BrowserWindow({
         minWidth: 600,
         width: 1000,
         minHeight: 300,
@@ -35,6 +35,8 @@ function createWindow() {
         backgroundColor: '#000',
         show: false
     });
+
+    const win = myWindow;
 
     if (!process.env.DEV) win.removeMenu();
 
@@ -63,21 +65,35 @@ function createWindow() {
                 backgroundColor: 'black',
                 autoHideMenuBar: true
             }
-        }
-    })
+        };
+    });
 }
 
+// Handle single instance lock
+const gotTheLock = app.requestSingleInstanceLock();
 
-// Initialize the app
-app.whenReady().then(async () => {
-    createWindow();
-
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
+if (!gotTheLock) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        // Focus the already open window when second instance is launched
+        if (myWindow) {
+            if (myWindow.isMinimized()) myWindow.restore();
+            myWindow.focus();
         }
     });
-});
+
+    // Initialize the app
+    app.whenReady().then(() => {
+        createWindow();
+
+        app.on('activate', () => {
+            if (BrowserWindow.getAllWindows().length === 0) {
+                createWindow();
+            }
+        });
+    });
+}
 
 // Quit when all windows are closed
 app.on('window-all-closed', () => {
