@@ -34,7 +34,8 @@ function createWindow() {
         height: 600,
         title: 'Concordia',
         backgroundColor: '#000',
-        show: false
+        show: false,
+        icon: path.join(__dirname, 'Concordia.png')
     });
 
     const win = myWindow;
