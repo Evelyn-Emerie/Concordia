@@ -1,20 +1,61 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../constants/Colors";
-import { useState } from "react";
-import { View, TextInput, Pressable, Platform, Text } from "react-native";
-
+import { useEffect, useState } from "react";
+import { View, TextInput, Pressable, Platform, Text, Modal } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
+import { Image as ExpoImage } from "expo-image";
+import T_Gif from "../types/gif";
+import T_Server from "@/types/server";
 interface AutoTextInputProps {
 	text: string;
 	setText: Function;
 	onSubmit: Function;
 	charLimit?: number;
+	server: T_Server;
 }
+
+const getGifs = async (server: T_Server, query: string, setGifs: Function) => {
+	try {
+		const response = await fetch(`${server.ip}/api/gifs?q=${query}`);
+		const json = await response.json();
+		if (response.status !== 200) throw new Error("Failed to fetch");
+		console.log("setting gif");
+
+		setGifs(json);
+	} catch (e) {
+		console.log(e);
+	}
+};
 
 export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 	const [inputHeight, setInputHeight] = useState(20);
 	const [isSendable, setIsSendable] = useState(false);
+	const [isVisible, setVisible] = useState(false);
+	// ! Temporary
+	const data: T_Gif[] = [
+		{
+			source: "https://media.tenor.com/TWbZjCy8iN4AAAAC/girl-anime.gif",
+			width: 200,
+			height: 100,
+		},
+		{
+			source: "https://media.tenor.com/-P82knPil4oAAAAC/girls-lesbian.gif",
+			width: 200,
+			height: 100,
+		},
+		{
+			source: "https://media.tenor.com/jlDpJDljsHUAAAAC/yuri-anime.gif",
+			width: 200,
+			height: 100,
+		},
+	];
+	const [gifs, setGifs] = useState<T_Gif[]>(data);
 
 	const keyValue = "Enter";
+
+	useEffect(() => {
+		getGifs(props.server, "yuri+kiss", setGifs);
+	}, []);
 
 	return (
 		<View
@@ -25,7 +66,23 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 				flexDirection: "row",
 				alignItems: "center",
 				borderRadius: 10,
+				position: "relative",
+				maxHeight: 100,
 			}}>
+			{isVisible ? (
+				<View style={{ width: "100%", height: 120, position: "absolute", backgroundColor: "#161616", bottom: "120%", right: 0, borderRadius: 3 }}>
+					<FlatList data={gifs} renderItem={(item) => <GifImage gif={item.item} setText={props.setText} text={props.text} setVisible={setVisible} />} horizontal />
+				</View>
+			) : null}
+			<Pressable
+				onPress={() => {
+					setVisible(!isVisible);
+				}}>
+				<View>
+					<Ionicons name="add-circle" size={20} color={"#262626"} />
+				</View>
+			</Pressable>
+			<View style={{ width: 5 }} />
 			<TextInput
 				style={{
 					flex: 1,
@@ -35,6 +92,7 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 					outlineStyle: "none", //! Purely for WEB only
 					fontSize: 14,
 					paddingRight: 10,
+					maxHeight: 100,
 				}}
 				value={props.text}
 				onKeyPress={(event) => {
@@ -77,7 +135,7 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 				onPress={() => {
 					if (props.text.length < 1) return;
 					props.onSubmit(); // Send the message
-					setInputHeight(16);
+					setInputHeight(20);
 					setIsSendable(false);
 				}}>
 				<View style={{ justifyContent: "center", alignItems: "center", width: 30 }}>
@@ -88,3 +146,21 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 		</View>
 	);
 }
+
+const GifImage = (props: { gif: T_Gif; text: string; setText: Function; setVisible: Function }) => {
+	const [hover, setHover] = useState(false);
+
+	return (
+		<Pressable
+			onHoverIn={() => setHover(true)}
+			onHoverOut={() => setHover(false)}
+			onPress={() => {
+				props.setText(props.text + `[gif](${props.gif.source})${props.gif.height};${props.gif.width}`);
+				props.setVisible(false);
+			}}>
+			<View style={{ padding: 5, backgroundColor: hover ? "#ffffff22" : "transparent", borderRadius: 3 }}>
+				<ExpoImage source={{ uri: props.gif.source }} style={{ height: 110, width: 200, borderRadius: 2 }} />
+			</View>
+		</Pressable>
+	);
+};

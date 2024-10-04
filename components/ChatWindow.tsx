@@ -8,6 +8,7 @@ import { Colors } from "../constants/Colors";
 import Server from "../types/server";
 import Channel from "../types/channel";
 import { Image as ExpoImage } from "expo-image";
+import T_Gif from "../types/gif";
 
 export type Message = {
 	id: string;
@@ -82,7 +83,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 			{isLoading ? (
 				<Loading />
 			) : data.length > 1 ? (
-				<View style={{ maxHeight: height - 120 }}>
+				<View style={{ maxHeight: height - 200 }}>
 					<FlatList
 						ref={superRef}
 						style={{ width: "98%", marginHorizontal: "auto" }}
@@ -125,9 +126,10 @@ export default function ChatWindow(props: ChatWindowProps) {
 				</View>
 			)}
 			<View style={{ height: 10 }} />
-			<View style={{ width: "95%", marginHorizontal: "auto", marginBottom: 10 }}>
-				<AutoExpandingTextInput charLimit={300} text={text} setText={setText} onSubmit={() => sendMessage(setText, text, props.activeChannel!.id, props.server as Server)} />
+			<View style={{ width: "95%", marginHorizontal: "auto", maxHeight: 100 }}>
+				<AutoExpandingTextInput server={props.server} charLimit={300} text={text} setText={setText} onSubmit={() => sendMessage(setText, text, props.activeChannel!.id, props.server as Server)} />
 			</View>
+			<View style={{ height: 10 }} />
 		</View>
 	);
 }
@@ -175,49 +177,31 @@ const MessageCard = memo((props: MessageCardProps) => {
 	);
 });
 
-const fetchGif = async (id: string, origin: "T" | "G", setGif: Function, setError: Function, serverIP: String) => {
-	try {
-		const response = await fetch(`${serverIP}/gifs?id=${id}&origin=${origin}`);
-		const json = await response.json();
-		if (response.status !== 200) throw new Error("Failed to fetch");
-		console.log("setting gif");
-
-		setGif(json);
-	} catch (e) {
-		setError(true);
-	}
-};
 interface ProcessedMessageProps {
 	text: string;
 	server: Server;
 	dimensions: ScaledSize;
 }
 
-type Gif = {
-	source: string;
-	width: number | undefined;
-	height: number | undefined;
-};
-
 const ProcessedMessage = memo((props: ProcessedMessageProps) => {
 	const URL_REGEX = /(http|https|HTTP|HTTPS):\/\/[\w_-]\S*/g;
-	const [gif, setGif] = useState<Gif | null>(null);
-	const [error, setError] = useState<boolean>(false);
+	const [gif, setGif] = useState<T_Gif | null>(null);
 
 	useEffect(() => {
-		const matchTenor = props.text.match(/\[tenor]\(([^)]+)\)/);
-		const matchGiphy = props.text.match(/\[giphy]\(([^)]+)\)/);
+		const match = props.text.match(/\[gif]\(([^)]+)\)(\d+);(\d+)/);
 
-		if (matchTenor) fetchGif(matchTenor[1], "T", setGif, setError, props.server.ip);
-		if (matchGiphy) fetchGif(matchGiphy[1], "G", setGif, setError, props.server.ip);
-	}, [props.text, props.server, !gif, !error]);
+		if (match)
+			setGif({
+				source: match[1],
+				height: Number(match[2]),
+				width: Number(match[3]),
+			});
+	}, [props.text, props.server, !gif]);
 
 	if (gif) {
 		let width = 250,
 			height = 250;
 		if (gif.width && gif.height) {
-			console.log(props.dimensions.width);
-			console.log(gif.width);
 			let limit = 50;
 			if (Platform.OS == "web") limit = 250;
 			if (gif.width > props.dimensions.width - limit) {
@@ -230,10 +214,6 @@ const ProcessedMessage = memo((props: ProcessedMessageProps) => {
 			}
 		}
 		return <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
-	}
-
-	if (error) {
-		return <Text style={{ color: "red" }}>Failed to load gif</Text>;
 	}
 
 	const URLs = props.text.match(URL_REGEX);
