@@ -35,7 +35,7 @@ function createWindow() {
         title: 'Concordia',
         backgroundColor: '#000',
         show: false,
-        icon: path.join(__dirname, "../assets/images", 'icon.png')
+        icon: path.join(__dirname, "../assets/images", 'icon_circle.png')
     });
 
     const win = myWindow;
@@ -100,7 +100,7 @@ if (!gotTheLock) {
             }
         });
 
-        tray = new Tray(path.join(__dirname, "../assets/images", 'icon.png'));
+        tray = new Tray(path.join(__dirname, "../assets/images", 'Tray-icon.png'));
         const contextMenu = Menu.buildFromTemplate([
             { label: 'Quit', click: () => { app.exit() } }
         ])
