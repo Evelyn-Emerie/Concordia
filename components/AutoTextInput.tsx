@@ -71,7 +71,7 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 			}}>
 			{isVisible ? (
 				<View style={{ width: "100%", height: 120, position: "absolute", backgroundColor: "#161616", bottom: "120%", right: 0, borderRadius: 3 }}>
-					<FlatList data={gifs} renderItem={(item) => <GifImage gif={item.item} setText={props.setText} text={props.text} setVisible={setVisible} />} horizontal />
+					<FlatList data={gifs} renderItem={(item) => <GifImage setSendable={setIsSendable} gif={item.item} setText={props.setText} text={props.text} setVisible={setVisible} />} horizontal />
 				</View>
 			) : null}
 			<Pressable
@@ -147,7 +147,7 @@ export default function AutoExpandingTextInput(props: AutoTextInputProps) {
 	);
 }
 
-const GifImage = (props: { gif: T_Gif; text: string; setText: Function; setVisible: Function }) => {
+const GifImage = (props: { gif: T_Gif; text: string; setText: Function; setVisible: Function; setSendable: Function }) => {
 	const [hover, setHover] = useState(false);
 
 	return (
@@ -157,6 +157,7 @@ const GifImage = (props: { gif: T_Gif; text: string; setText: Function; setVisib
 			onPress={() => {
 				props.setText(props.text + `[gif](${props.gif.source})${props.gif.height};${props.gif.width}`);
 				props.setVisible(false);
+				props.setSendable(true);
 			}}>
 			<View style={{ padding: 5, backgroundColor: hover ? "#ffffff22" : "transparent", borderRadius: 3 }}>
 				<ExpoImage source={{ uri: props.gif.source }} style={{ height: 110, width: 200, borderRadius: 2 }} />
