@@ -94,7 +94,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 				<Loading />
 			) : data.length > 1 ? (
 				<View style={{ flex: 1, maxHeight: height - 120 }}>
-					<View style={{ flex: 100, backgroundColor: "red" }} />
+					<View style={{ flex: 100 }} />
 					<FlatList
 						ref={superRef}
 						style={{ width: "98%", marginHorizontal: "auto" }}
