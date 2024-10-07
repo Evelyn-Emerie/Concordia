@@ -99,7 +99,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 						ref={superRef}
 						style={{ width: "98%", marginHorizontal: "auto" }}
 						data={[...data].reverse()}
-						keyExtractor={(item) => item.id}
+						keyExtractor={(item) => item?.id ?? -1}
 						renderItem={({ item, index }) => {
 							let isLastInGroup = true;
 							try {
@@ -200,21 +200,28 @@ interface ProcessedMessageProps {
 const ProcessedMessage = memo((props: ProcessedMessageProps) => {
 	const URL_REGEX = /(http|https|HTTP|HTTPS):\/\/[\w_-]\S*/g;
 	const [gif, setGif] = useState<T_Gif | null>(null);
+	const [text, setText] = useState(props.text);
+	// let text = props.text;
 
 	useEffect(() => {
-		const match = props.text.match(/\[gif]\(([^)]+)\)(\d+);(\d+)/);
+		const GIF_REGEX = /\[gif]\(([^)]+)\)(\d+);(\d+)/;
+		const match = text.match(GIF_REGEX);
 
-		if (match)
+		if (match) {
 			setGif({
 				source: match[1],
 				height: Number(match[2]),
 				width: Number(match[3]),
 			});
-	}, [props.text, props.server, !gif]);
+
+			setText(text.replace(GIF_REGEX, ""));
+		}
+	}, [props.text, props.server, gif]);
+
+	let width = 250,
+		height = 250;
 
 	if (gif) {
-		let width = 250,
-			height = 250;
 		if (gif.width && gif.height) {
 			let limit = 50;
 			if (Platform.OS == "web") limit = 250;
@@ -227,25 +234,25 @@ const ProcessedMessage = memo((props: ProcessedMessageProps) => {
 				height = gif.height;
 			}
 		}
-		return <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
 	}
 
-	const URLs = props.text.match(URL_REGEX);
-	const parts = props.text.split(" ");
-
-	if (!URLs) return <Text>{props.text}</Text>;
+	const URLs = text.match(URL_REGEX) ?? [""];
+	const parts = text.split(" ");
 
 	return (
-		<Text>
-			{parts.map((part, index) =>
-				URLs.includes(part) ? (
-					<Pressable key={`link-${index}`} onPress={() => Linking.openURL(part)}>
-						<Text style={{ color: Colors.dark.secondary, textDecorationLine: "underline" }}>{part + " "}</Text>
-					</Pressable>
-				) : (
-					<Text key={`text-${index}`}>{part + " "}</Text>
-				),
-			)}
-		</Text>
+		<View>
+			<Text>
+				{parts.map((part, index) =>
+					URLs.includes(part) ? (
+						<Pressable key={`link-${index}`} onPress={() => Linking.openURL(part)}>
+							<Text style={{ color: Colors.dark.secondary, textDecorationLine: "underline" }}>{part + " "}</Text>
+						</Pressable>
+					) : (
+						<Text key={`text-${index}`}>{part + " "}</Text>
+					),
+				)}
+			</Text>
+			{gif ? <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} /> : null}
+		</View>
 	);
 });
