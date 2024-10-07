@@ -93,7 +93,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 			{isLoading || !user ? (
 				<Loading />
 			) : data.length > 1 ? (
-				<View style={{ flex: 1, maxHeight: height - 120 }}>
+				<View style={{ flex: 1 }}>
 					<View style={{ flex: 100 }} />
 					<FlatList
 						ref={superRef}
@@ -178,7 +178,7 @@ const MessageCard = memo((props: MessageCardProps) => {
 				<View style={{ flexDirection: "row", alignItems: "flex-end" }}>
 					<View style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5, overflow: "hidden" }}>{props.message.user.profilePicture ? <Image source={{ uri: `${props.server.ip}/users/pfp/${props.message.user.profilePicture}`, width: 30, height: 30 }} /> : null}</View>
 					<Text style={{ color: "#fff", fontWeight: "500", marginBottom: 5 }}>{props.message.user.nickname ?? props.message.user.username}</Text>
-					<Text style={{ color: "#ddd", fontSize: 10, marginBottom: 5 }}> {timestamp}</Text>
+					<Text style={{ color: "#ddd", fontSize: 10, marginBottom: 5 }}>{timestamp}</Text>
 				</View>
 			)}
 			<Pressable style={{ cursor: "auto" }} onLongPress={() => Platform.OS != "web" && copyToClipboard(props.message.text)} onHoverIn={() => setHover(true)} onHoverOut={() => setHover(false)}>
