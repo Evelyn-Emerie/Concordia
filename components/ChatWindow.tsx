@@ -9,15 +9,17 @@ import Server from "../types/server";
 import Channel from "../types/channel";
 import { Image as ExpoImage } from "expo-image";
 import T_Gif from "../types/gif";
+import T_User from "@/types/user";
+import { User } from "@/handlers/storage";
 
 export type Message = {
 	id: string;
 	text: string;
 	channel: number;
-	user: User;
+	user: Member;
 };
 
-type User = {
+type Member = {
 	id: string;
 	nickname?: string;
 	username: string;
@@ -36,6 +38,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 	const [isLoading, setLoading] = useState(true);
 	const [data, setData] = useState<Message[]>([]);
 	const [text, setText] = useState("");
+	const [user, setUser] = useState<T_User | null>(null);
 	const superRef = useRef(null);
 
 	const getData = async () => {
@@ -60,6 +63,14 @@ export default function ChatWindow(props: ChatWindowProps) {
 		}
 	}, [data]);
 
+	useEffect(() => {
+		const getUser = async () => {
+			const user = await User.getUserObject();
+			setUser(user);
+		};
+		getUser();
+	}, []);
+
 	if (!props.server)
 		return (
 			<View style={{ justifyContent: "center", alignContent: "center", width: "100%", flex: 1 }}>
@@ -79,11 +90,10 @@ export default function ChatWindow(props: ChatWindowProps) {
 			<View style={{ height: 50, backgroundColor: Colors.dark.background, justifyContent: "center", paddingHorizontal: 20 }}>
 				<Text style={{ color: "white", fontSize: 18 }}>{props.activeChannel.title}</Text>
 			</View>
-			<View style={{ flex: 1 }} />
-			{isLoading ? (
+			{isLoading || !user ? (
 				<Loading />
 			) : data.length > 1 ? (
-				<View style={{ maxHeight: height - 200 }}>
+				<View style={{ flex: 1 }}>
 					<FlatList
 						ref={superRef}
 						style={{ width: "98%", marginHorizontal: "auto" }}
@@ -103,7 +113,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 								isLastInGroup = true;
 							}
 
-							return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} dimensions={dimensions} />;
+							return <MessageCard user={user} message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} dimensions={dimensions} />;
 						}}
 						onStartReached={() => {
 							console.log("end!");
@@ -149,6 +159,7 @@ interface MessageCardProps {
 	server: Server;
 	index?: number;
 	dimensions: ScaledSize;
+	user: T_User;
 }
 
 const MessageCard = memo((props: MessageCardProps) => {
@@ -157,6 +168,8 @@ const MessageCard = memo((props: MessageCardProps) => {
 	const timestamp = getTime(parseInt(props.message.id));
 	const copyToClipboard = async (text: string) => await Clipboard.setStringAsync(text);
 	const [hover, setHover] = useState(false);
+
+	const isMentioned = props.message.text.match(new RegExp(`@${props.user.username}\\b`, "g"));
 
 	return (
 		<View style={{ minHeight: 20, width: "100%", paddingHorizontal: 10, paddingTop: props.isLastInGroup ? 2 : 0, marginTop: props.isLastInGroup ? 10 : 0 }}>
@@ -168,7 +181,7 @@ const MessageCard = memo((props: MessageCardProps) => {
 				</View>
 			)}
 			<Pressable style={{ cursor: "auto" }} onLongPress={() => Platform.OS != "web" && copyToClipboard(props.message.text)} onHoverIn={() => setHover(true)} onHoverOut={() => setHover(false)}>
-				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text", padding: 2, borderRadius: 2 }}>
+				<Text style={{ color: "white", backgroundColor: isMentioned ? `${Colors.dark.secondary}77` : hover ? "#333" : "transparent", position: "relative", userSelect: "text", padding: 2, borderRadius: 3 }}>
 					<ProcessedMessage text={props.message.text} server={props.server} dimensions={props.dimensions} />
 					{hover && <Text style={{ color: "white", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text>}
 				</Text>
