@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { User } from "@/handlers/storage";
 import Loading from "@/components/loading";
 import Register from "./register";
+import CallWindow from "./call/call";
 
 export default function Index() {
 	const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
@@ -26,6 +27,7 @@ export default function Index() {
 					flex: 1,
 				}}>
 				{loggedIn == null ? <Loading /> : loggedIn == true ? <MainWindow /> : <Register />}
+				{/* <CallWindow /> */}
 			</SafeAreaView>
 		</GestureHandlerRootView>
 	);

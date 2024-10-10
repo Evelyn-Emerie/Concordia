@@ -17,7 +17,7 @@ package() {
     
     # Copy all contents directly from the directory containing the PKGBUILD
     cp -r "$srcdir/"* "$pkgdir/opt/concordia/"
-    cp -r "$srcdir/../../../assets" "$pkgdir/opt/concordia/assets"
+    cp -r "$srcdir/../../../assets" "$pkgdir/opt/concordia/resources/assets"
     
     install -Dm644 "$srcdir/Concordia.desktop" "$pkgdir/usr/share/applications/Concordia.desktop"
 }

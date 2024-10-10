@@ -99,7 +99,6 @@ if (!gotTheLock) {
                 createWindow();
             }
         });
-
         tray = new Tray(path.join(__dirname, "../assets/images", 'Tray-icon.png'));
         const contextMenu = Menu.buildFromTemplate([
             { label: 'Quit', click: () => { app.exit() } }
