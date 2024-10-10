@@ -94,12 +94,16 @@ export default function ChatWindow(props: ChatWindowProps) {
 				<Loading />
 			) : data.length > 1 ? (
 				<View style={{ flex: 1 }}>
-					<View style={{ flex: 100 }} />
 					<FlatList
 						ref={superRef}
 						style={{ width: "98%", marginHorizontal: "auto" }}
 						data={[...data].reverse()}
 						keyExtractor={(item) => item?.id ?? -1}
+						ListHeaderComponent={
+							<View style={{ height: height - 100, borderBottomWidth: 2, borderBottomColor: "#757575", justifyContent: "center", alignItems: "center" }}>
+								<Text style={{ color: "#757575", fontWeight: "700", fontSize: 30 }}>Welcome to the start of #{props.activeChannel.title}</Text>
+							</View>
+						}
 						renderItem={({ item, index }) => {
 							let isLastInGroup = true;
 							try {
