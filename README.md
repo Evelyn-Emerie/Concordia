@@ -8,7 +8,7 @@ To compile the code yourself you can use one of the 2 script files depending on 
 ```bash
 npm run compile-win
 ```
-### Linux
+### Arch-Linux
 ```bash
 npm run compile-lin
 ```
