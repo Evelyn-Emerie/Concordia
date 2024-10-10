@@ -1,7 +1,7 @@
 {
 	"name": "concordia",
 	"main": "expo-router/entry",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"scripts": {
 		"start-server": "npx expo start",
 		"start-client": "cross-env DEV=true electron ./electron/main.js",

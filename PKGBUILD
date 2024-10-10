@@ -1,7 +1,7 @@
 # Maintainer: Evelyn Rei, evelyn.rei@staryhub.net
 
 pkgname=concordia
-pkgver=1.0.0
+pkgver=1.0.1
 pkgrel=1
 pkgdesc="A client to use alongside Concordia-Server, an alternative to discord with privacy in mind"
 arch=('x86_64')
