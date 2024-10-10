@@ -10,4 +10,6 @@ cp ../Concordia.desktop ./output/src/Concordia.desktop
 cd output
 makepkg si -f
 rm -r pkg
+rm -r src
+rm PKGBUILD
 cd ..
