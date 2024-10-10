@@ -1,7 +1,7 @@
 # Maintainer: Evelyn Rei, evelyn.rei@staryhub.net
 
 pkgname=concordia
-pkgver=1.0.0
+pkgver=1.0.1
 pkgrel=1
 pkgdesc="A client to use alongside Concordia-Server, an alternative to discord with privacy in mind"
 arch=('x86_64')
@@ -17,8 +17,7 @@ package() {
     
     # Copy all contents directly from the directory containing the PKGBUILD
     cp -r "$srcdir/"* "$pkgdir/opt/concordia/"
-
-    install -Dm644 "$srcdir/Concordia.desktop" "$pkgdir/usr/share/applications/Concordia.desktop"
+    cp -r "$srcdir/../../../assets" "$pkgdir/opt/concordia/resources/assets"
 }
 
 post_install(){

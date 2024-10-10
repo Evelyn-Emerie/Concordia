@@ -8,15 +8,18 @@ import { Colors } from "../constants/Colors";
 import Server from "../types/server";
 import Channel from "../types/channel";
 import { Image as ExpoImage } from "expo-image";
+import T_Gif from "../types/gif";
+import T_User from "@/types/user";
+import { User } from "@/handlers/storage";
 
 export type Message = {
 	id: string;
 	text: string;
 	channel: number;
-	user: User;
+	user: Member;
 };
 
-type User = {
+type Member = {
 	id: string;
 	nickname?: string;
 	username: string;
@@ -35,6 +38,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 	const [isLoading, setLoading] = useState(true);
 	const [data, setData] = useState<Message[]>([]);
 	const [text, setText] = useState("");
+	const [user, setUser] = useState<T_User | null>(null);
 	const superRef = useRef(null);
 
 	const getData = async () => {
@@ -59,6 +63,14 @@ export default function ChatWindow(props: ChatWindowProps) {
 		}
 	}, [data]);
 
+	useEffect(() => {
+		const getUser = async () => {
+			const user = await User.getUserObject();
+			setUser(user);
+		};
+		getUser();
+	}, []);
+
 	if (!props.server)
 		return (
 			<View style={{ justifyContent: "center", alignContent: "center", width: "100%", flex: 1 }}>
@@ -78,16 +90,20 @@ export default function ChatWindow(props: ChatWindowProps) {
 			<View style={{ height: 50, backgroundColor: Colors.dark.background, justifyContent: "center", paddingHorizontal: 20 }}>
 				<Text style={{ color: "white", fontSize: 18 }}>{props.activeChannel.title}</Text>
 			</View>
-			<View style={{ flex: 1 }} />
-			{isLoading ? (
+			{isLoading || !user ? (
 				<Loading />
 			) : data.length > 1 ? (
-				<View style={{ maxHeight: height - 120 }}>
+				<View style={{ flex: 1 }}>
 					<FlatList
 						ref={superRef}
 						style={{ width: "98%", marginHorizontal: "auto" }}
 						data={[...data].reverse()}
-						keyExtractor={(item) => item.id}
+						keyExtractor={(item) => item?.id ?? -1}
+						ListHeaderComponent={
+							<View style={{ height: height - 100, borderBottomWidth: 2, borderBottomColor: "#757575", justifyContent: "center", alignItems: "center" }}>
+								<Text style={{ color: "#757575", fontWeight: "700", fontSize: 30 }}>Welcome to the start of #{props.activeChannel.title}</Text>
+							</View>
+						}
 						renderItem={({ item, index }) => {
 							let isLastInGroup = true;
 							try {
@@ -102,7 +118,7 @@ export default function ChatWindow(props: ChatWindowProps) {
 								isLastInGroup = true;
 							}
 
-							return <MessageCard message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} dimensions={dimensions} />;
+							return <MessageCard user={user} message={item} index={index} isLastInGroup={isLastInGroup} server={props.server as Server} dimensions={dimensions} />;
 						}}
 						onStartReached={() => {
 							console.log("end!");
@@ -125,9 +141,10 @@ export default function ChatWindow(props: ChatWindowProps) {
 				</View>
 			)}
 			<View style={{ height: 10 }} />
-			<View style={{ width: "95%", marginHorizontal: "auto", marginBottom: 10 }}>
-				<AutoExpandingTextInput charLimit={300} text={text} setText={setText} onSubmit={() => sendMessage(setText, text, props.activeChannel!.id, props.server as Server)} />
+			<View style={{ width: "95%", marginHorizontal: "auto", maxHeight: 100 }}>
+				<AutoExpandingTextInput server={props.server} charLimit={300} text={text} setText={setText} onSubmit={() => sendMessage(setText, text, props.activeChannel!.id, props.server as Server)} />
 			</View>
+			<View style={{ height: 10 }} />
 		</View>
 	);
 }
@@ -147,6 +164,7 @@ interface MessageCardProps {
 	server: Server;
 	index?: number;
 	dimensions: ScaledSize;
+	user: T_User;
 }
 
 const MessageCard = memo((props: MessageCardProps) => {
@@ -156,17 +174,19 @@ const MessageCard = memo((props: MessageCardProps) => {
 	const copyToClipboard = async (text: string) => await Clipboard.setStringAsync(text);
 	const [hover, setHover] = useState(false);
 
+	const isMentioned = props.message.text.match(new RegExp(`@${props.user.username}\\b`, "g"));
+
 	return (
 		<View style={{ minHeight: 20, width: "100%", paddingHorizontal: 10, paddingTop: props.isLastInGroup ? 2 : 0, marginTop: props.isLastInGroup ? 10 : 0 }}>
 			{props.isLastInGroup && (
 				<View style={{ flexDirection: "row", alignItems: "flex-end" }}>
 					<View style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5, overflow: "hidden" }}>{props.message.user.profilePicture ? <Image source={{ uri: `${props.server.ip}/users/pfp/${props.message.user.profilePicture}`, width: 30, height: 30 }} /> : null}</View>
 					<Text style={{ color: "#fff", fontWeight: "500", marginBottom: 5 }}>{props.message.user.nickname ?? props.message.user.username}</Text>
-					<Text style={{ color: "#ddd", fontSize: 10, marginBottom: 5 }}> {timestamp}</Text>
+					<Text style={{ color: "#ddd", fontSize: 10, marginBottom: 5 }}>{timestamp}</Text>
 				</View>
 			)}
 			<Pressable style={{ cursor: "auto" }} onLongPress={() => Platform.OS != "web" && copyToClipboard(props.message.text)} onHoverIn={() => setHover(true)} onHoverOut={() => setHover(false)}>
-				<Text style={{ color: "white", backgroundColor: hover ? "#333" : "transparent", position: "relative", userSelect: "text", padding: 2, borderRadius: 2 }}>
+				<Text style={{ color: "white", backgroundColor: isMentioned ? `${Colors.dark.secondary}77` : hover ? "#333" : "transparent", position: "relative", userSelect: "text", padding: 2, borderRadius: 3 }}>
 					<ProcessedMessage text={props.message.text} server={props.server} dimensions={props.dimensions} />
 					{hover && <Text style={{ color: "white", fontSize: 10, position: "absolute", right: 5 }}>{new Date(props.message.id).toLocaleTimeString().slice(0, 5)}</Text>}
 				</Text>
@@ -175,49 +195,38 @@ const MessageCard = memo((props: MessageCardProps) => {
 	);
 });
 
-const fetchGif = async (id: string, origin: "T" | "G", setGif: Function, setError: Function, serverIP: String) => {
-	try {
-		const response = await fetch(`${serverIP}/gifs?id=${id}&origin=${origin}`);
-		const json = await response.json();
-		if (response.status !== 200) throw new Error("Failed to fetch");
-		console.log("setting gif");
-
-		setGif(json);
-	} catch (e) {
-		setError(true);
-	}
-};
 interface ProcessedMessageProps {
 	text: string;
 	server: Server;
 	dimensions: ScaledSize;
 }
 
-type Gif = {
-	source: string;
-	width: number | undefined;
-	height: number | undefined;
-};
-
 const ProcessedMessage = memo((props: ProcessedMessageProps) => {
 	const URL_REGEX = /(http|https|HTTP|HTTPS):\/\/[\w_-]\S*/g;
-	const [gif, setGif] = useState<Gif | null>(null);
-	const [error, setError] = useState<boolean>(false);
+	const [gif, setGif] = useState<T_Gif | null>(null);
+	const [text, setText] = useState(props.text);
+	// let text = props.text;
 
 	useEffect(() => {
-		const matchTenor = props.text.match(/\[tenor]\(([^)]+)\)/);
-		const matchGiphy = props.text.match(/\[giphy]\(([^)]+)\)/);
+		const GIF_REGEX = /\[gif]\(([^)]+)\)(\d+);(\d+)/;
+		const match = text.match(GIF_REGEX);
 
-		if (matchTenor) fetchGif(matchTenor[1], "T", setGif, setError, props.server.ip);
-		if (matchGiphy) fetchGif(matchGiphy[1], "G", setGif, setError, props.server.ip);
-	}, [props.text, props.server, !gif, !error]);
+		if (match) {
+			setGif({
+				source: match[1],
+				height: Number(match[2]),
+				width: Number(match[3]),
+			});
+
+			setText(text.replace(GIF_REGEX, ""));
+		}
+	}, [props.text, props.server, gif]);
+
+	let width = 250,
+		height = 250;
 
 	if (gif) {
-		let width = 250,
-			height = 250;
 		if (gif.width && gif.height) {
-			console.log(props.dimensions.width);
-			console.log(gif.width);
 			let limit = 50;
 			if (Platform.OS == "web") limit = 250;
 			if (gif.width > props.dimensions.width - limit) {
@@ -229,29 +238,25 @@ const ProcessedMessage = memo((props: ProcessedMessageProps) => {
 				height = gif.height;
 			}
 		}
-		return <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} />;
 	}
 
-	if (error) {
-		return <Text style={{ color: "red" }}>Failed to load gif</Text>;
-	}
-
-	const URLs = props.text.match(URL_REGEX);
-	const parts = props.text.split(" ");
-
-	if (!URLs) return <Text>{props.text}</Text>;
+	const URLs = text.match(URL_REGEX) ?? [""];
+	const parts = text.split(" ");
 
 	return (
-		<Text>
-			{parts.map((part, index) =>
-				URLs.includes(part) ? (
-					<Pressable key={`link-${index}`} onPress={() => Linking.openURL(part)}>
-						<Text style={{ color: Colors.dark.secondary, textDecorationLine: "underline" }}>{part + " "}</Text>
-					</Pressable>
-				) : (
-					<Text key={`text-${index}`}>{part + " "}</Text>
-				),
-			)}
-		</Text>
+		<View>
+			<Text>
+				{parts.map((part, index) =>
+					URLs.includes(part) ? (
+						<Pressable key={`link-${index}`} onPress={() => Linking.openURL(part)}>
+							<Text style={{ color: Colors.dark.secondary, textDecorationLine: "underline" }}>{part + " "}</Text>
+						</Pressable>
+					) : (
+						<Text key={`text-${index}`}>{part + " "}</Text>
+					),
+				)}
+			</Text>
+			{gif ? <ExpoImage source={{ uri: gif.source }} cachePolicy={"memory"} contentFit="fill" style={{ width: width, height: height, marginTop: 0, marginLeft: 5, marginBottom: 5, borderRadius: 5 }} /> : null}
+		</View>
 	);
 });
