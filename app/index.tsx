@@ -1,4 +1,3 @@
-import { Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../constants/Colors";
@@ -8,9 +7,11 @@ import { User } from "@/handlers/storage";
 import Loading from "@/components/loading";
 import Register from "./register";
 import CallWindow from "./call/call";
+import * as Network from "expo-network";
 
 export default function Index() {
 	const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
+	const [isConnected, setIsConnected] = useState<boolean | null>(null);
 	useEffect(() => {
 		async function load() {
 			const user = await User.getUserObject();
@@ -19,6 +20,26 @@ export default function Index() {
 		}
 		load();
 	}, []);
+
+	useEffect(() => {
+		async function checkConnection() {
+			try {
+				// TODO change to a different website
+				const test = await fetch("https://api.ipify.org?format=json", { method: "GET" });
+				if (test.status == 200) {
+					setIsConnected(true);
+				} else setIsConnected(false);
+			} catch (e) {
+				setIsConnected(false);
+			}
+
+			setTimeout(() => {
+				checkConnection();
+			}, 60 * 1000); // Check internet connection every minute
+		}
+		checkConnection();
+	}, []);
+
 	return (
 		<GestureHandlerRootView>
 			<SafeAreaView
@@ -26,7 +47,7 @@ export default function Index() {
 					backgroundColor: Colors.dark.background,
 					flex: 1,
 				}}>
-				{loggedIn == null ? <Loading /> : loggedIn == true ? <MainWindow /> : <Register />}
+				{isConnected ? loggedIn == null ? <Loading /> : loggedIn == true ? <MainWindow /> : <Register /> : <Loading />}
 				{/* <CallWindow /> */}
 			</SafeAreaView>
 		</GestureHandlerRootView>
