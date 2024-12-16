@@ -1,4 +1,4 @@
-import StyledTextInput from "@/components/StyledTextInput";
+import StyledTextInput from "@/components/inputs/StyledTextInput";
 import StyledButton from "@/components/inputs/StyledButton";
 import { Colors } from "@/constants/Colors";
 import { User } from "@/handlers/storage";

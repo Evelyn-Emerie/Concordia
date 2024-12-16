@@ -8,8 +8,8 @@ import { LocalSettings, TypeLocalSettings } from "../../handlers/storage";
 import Loading from "../../components/loading";
 import { Colors } from "../../constants/Colors";
 import UISettings from "./UI";
-import ReturnArrow from "@/components/returnArrow";
-import SettingsList from "@/components/SettingsList";
+import ReturnArrow from "@/components/settings/returnArrow";
+import SettingsList from "@/components/settings/SettingsList";
 
 let preLoadedSettings: TypeLocalSettings;
 

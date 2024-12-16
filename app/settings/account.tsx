@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import SettingsTextInput from "../../components/StyledTextInput";
+import SettingsTextInput from "../../components/inputs/StyledTextInput";
 import ServerPageLabel from "../../components/ServerPageLabel";
 import { useEffect, useState } from "react";
 import { User } from "../../handlers/storage";

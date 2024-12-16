@@ -1,5 +1,5 @@
 import { Modal, Pressable, TouchableWithoutFeedback, View, Text, Image } from "react-native";
-import StyledTextInput from "../StyledTextInput";
+import StyledTextInput from "../inputs/StyledTextInput";
 import { Colors } from "@/constants/Colors";
 import StyledButton from "../inputs/StyledButton";
 import { useRef, useState } from "react";

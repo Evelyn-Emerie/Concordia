@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import ServerPageLabel from "../../../components/ServerPageLabel";
 import Server from "../../../types/server";
-import SettingsTextInput from "../../../components/StyledTextInput";
+import SettingsTextInput from "../../../components/inputs/StyledTextInput";
 
 export default function GeneralServerSettings(props: { getServer: Function }) {
 	const server: Server = props.getServer();

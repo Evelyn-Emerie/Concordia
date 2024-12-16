@@ -3,8 +3,8 @@ import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../../../constants/Colors";
-import ReturnArrow from "@/components/returnArrow";
-import SettingsList from "@/components/SettingsList";
+import ReturnArrow from "@/components/settings/returnArrow";
+import SettingsList from "@/components/settings/SettingsList";
 import GeneralServerSettings from "./general";
 import { selectedServerPublic } from "../../../components/ServerList";
 
