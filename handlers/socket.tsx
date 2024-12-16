@@ -15,6 +15,14 @@ class Socket {
 			});
 		}
 
+		if (Socket.instance && server.ip != Socket.instance.io.uri) {
+			Socket.instance.disconnect();
+			Socket.instance = io(`${server.ip}`, {
+				secure: true,
+				transports: ["websocket"],
+			});
+		}
+
 		return Socket.instance;
 	}
 }

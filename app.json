@@ -20,7 +20,7 @@
 				"foregroundImage": "./assets/images/adaptive-icon.png",
 				"backgroundColor": "#ffffff"
 			},
-			"package": "com.Concordia.Concordia"
+			"package": "com.EE-Digital.Concordia"
 		},
 		"web": {
 			"bundler": "metro",
