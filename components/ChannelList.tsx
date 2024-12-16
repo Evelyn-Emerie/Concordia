@@ -3,6 +3,7 @@ import User from "../types/user";
 import Server from "../types/server";
 import Channel from "../types/channel";
 import { useEffect, useState } from "react";
+import { router } from "expo-router";
 
 interface ChanneListProps {
 	selected?: Channel;
@@ -13,6 +14,7 @@ interface ChanneListProps {
 
 export default function ChannelList(props: ChanneListProps) {
 	const [channels, setChannels] = useState<Channel[]>(props.server.channels ?? []);
+	const [titleHover, setTitleHover] = useState(false);
 
 	const getChannels = async () => {
 		try {
@@ -36,16 +38,25 @@ export default function ChannelList(props: ChanneListProps) {
 
 	return (
 		<View style={{ paddingHorizontal: 5, flex: 1 }}>
-			<View
-				style={{
-					height: 50,
-					borderBottomColor: "white",
-					justifyContent: "center",
-					marginBottom: 10,
-					marginLeft: 5,
-				}}>
-				<Text style={{ color: "white", fontSize: 24 }}>{props.server.title}</Text>
-			</View>
+			<Pressable
+				onPress={() => {
+					router.push("/server/settings/main" as any);
+				}}
+				onPointerEnter={() => setTitleHover(true)}
+				onPointerLeave={() => setTitleHover(false)}>
+				<View
+					style={{
+						height: 50,
+						borderBottomColor: "white",
+						justifyContent: "center",
+						paddingHorizontal: 10,
+						marginBottom: 10,
+						backgroundColor: titleHover ? "#FFFFFF22" : "transparent",
+						borderRadius: 5,
+					}}>
+					<Text style={{ color: "white", fontSize: 24, textAlign: "center" }}>{props.server.title}</Text>
+				</View>
+			</Pressable>
 			{channels.length > 0 ? (
 				<FlatList
 					data={channels}

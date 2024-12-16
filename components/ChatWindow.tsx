@@ -92,7 +92,11 @@ export default function ChatWindow(props: ChatWindowProps) {
 			</View>
 			{isLoading || !user ? (
 				<Loading />
-			) : data.length > 1 ? (
+			) : !data ? (
+				<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+					<Text style={{ color: "#FFFFFF44", fontSize: 20 }}>There's no messages here yet!</Text>
+				</View>
+			) : (
 				<View style={{ flex: 1 }}>
 					<FlatList
 						ref={superRef}
@@ -134,10 +138,6 @@ export default function ChatWindow(props: ChatWindowProps) {
 						}}
 						showsVerticalScrollIndicator={false}
 					/>
-				</View>
-			) : (
-				<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-					<Text style={{ color: "#FFFFFF44", fontSize: 20 }}>There's no messages here yet!</Text>
 				</View>
 			)}
 			<View style={{ height: 10 }} />

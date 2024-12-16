@@ -67,7 +67,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 				const localSettings = await LocalSettings.get();
 				const lastId = localSettings.servers.length > 0 ? localSettings.servers[localSettings.servers.length - 1].id : 0;
 				const server: Server = {
-					id: lastId + 1 ?? 0,
+					id: lastId + 1,
 					accessToken: json.token,
 					title: json.server.title,
 					ip: ip,
@@ -118,7 +118,7 @@ export default function AddServerModal(props: { toggle: Function; visible: boole
 				const localSettings = await LocalSettings.get();
 				const lastId = localSettings.servers.length > 0 ? localSettings.servers[localSettings.servers.length - 1].id : 0;
 				const server: Server = {
-					id: lastId + 1 ?? 0,
+					id: lastId + 1,
 					accessToken: json.token,
 					title: json.server.title,
 					ip: ip,
